@@ -1,0 +1,3810 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Study With Me — منصة الدراسة الذكية</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Fonts: Tajawal & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600;700;800&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Tajawal', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: 'var(--brand-50, #eff6ff)',
+              100: 'var(--brand-100, #dbeafe)',
+              200: 'var(--brand-200, #bfdbfe)',
+              400: 'var(--brand-400, #60a5fa)',
+              500: 'var(--brand-500, #3b82f6)',
+              600: 'var(--brand-600, #2563eb)',
+              700: 'var(--brand-700, #1d4ed8)',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --brand-50: #eff6ff;
+      --brand-100: #dbeafe;
+      --brand-200: #bfdbfe;
+      --brand-400: #60a5fa;
+      --brand-500: #3b82f6;
+      --brand-600: #2563eb;
+      --brand-700: #1d4ed8;
+      --bg-wash-primary: rgba(59, 130, 246, 0.065);
+      --bg-wash-secondary: rgba(37, 99, 235, 0.045);
+      --bg-wash-base: #f8fafc;
+    }
+
+    .dark {
+      --bg-wash-primary: rgba(59, 130, 246, 0.085);
+      --bg-wash-secondary: rgba(37, 99, 235, 0.055);
+      --bg-wash-base: #020617;
+    }
+
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background-color: var(--bg-wash-base);
+      background-image:
+        radial-gradient(circle at 14% 12%, var(--bg-wash-primary) 0%, transparent 52%),
+        radial-gradient(circle at 86% 22%, var(--bg-wash-secondary) 0%, transparent 56%),
+        radial-gradient(circle at 50% 88%, var(--bg-wash-primary) 0%, transparent 62%),
+        linear-gradient(160deg, var(--bg-wash-secondary) 0%, transparent 48%, var(--bg-wash-primary) 100%);
+      background-attachment: fixed;
+      background-size: cover;
+    }
+
+    .timer-digits {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+    }
+
+    .dark .glass-card {
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(51, 65, 85, 0.75);
+    }
+  </style>
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.45);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 116, 139, 0.7);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-[92%] max-w-md pointer-events-none"></div>
+
+  <!-- Hidden Audio Element for Live Buddy Mic Playback -->
+  <audio id="buddy-mic-audio" autoplay playsinline class="hidden"></audio>
+
+  <!-- ==================== VIEW 1: GOOGLE SIGN-IN SCREEN ==================== -->
+  <section id="view-login" class="flex-1 flex items-center justify-center p-4 sm:p-6">
+    <div class="glass-card w-full max-w-md rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
+      <div class="text-center">
+        <div class="w-16 h-16 rounded-2xl bg-brand-600 text-white mx-auto flex items-center justify-center shadow-lg mb-4">
+          <i data-lucide="graduation-cap" class="w-8 h-8"></i>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">Study With Me</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5">
+          منصة الدراسة الذكية لطلاب التوجيهي والصف الحادي عشر في الأردن — أدخل بيانات حساب جوجل الخاص بك للبدء
+        </p>
+      </div>
+
+      <!-- Custom Google Account Sign-In Form (Manual Entry Only, No Suggested Accounts) -->
+      <form id="google-login-form" onsubmit="handleGoogleLogin(event)" autocomplete="off" class="space-y-4">
+        <div>
+          <label for="student-name-input" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+            الاسم الكامل للطالب
+          </label>
+          <input
+            id="student-name-input"
+            type="text"
+            required
+            autocomplete="off"
+            placeholder="أدخل اسمك الكامل"
+            class="w-full px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
+          />
+        </div>
+
+        <div>
+          <label for="google-email-input" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+            البريد الإلكتروني لحساب جوجل (Gmail)
+          </label>
+          <input
+            id="google-email-input"
+            type="email"
+            required
+            autocomplete="off"
+            placeholder="name@gmail.com"
+            class="w-full px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="w-full py-3.5 px-4 rounded-2xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-white border border-slate-300 dark:border-slate-600 font-extrabold text-sm shadow-sm flex items-center justify-center gap-3 transition cursor-pointer"
+        >
+          <!-- Google Multi-Color SVG -->
+          <svg class="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.54-1.14 2.85-2.4 3.72v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.22z"/>
+            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24z"/>
+            <path fill="#FBBC05" d="M5.28 14.24c-.24-.72-.38-1.49-.38-2.24s.14-1.52.38-2.24V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.99-3.14z"/>
+            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96z"/>
+          </svg>
+          <span>تسجيل الدخول عبر حساب Google</span>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ==================== VIEW 2: GRADE & FIELD SELECTOR ==================== -->
+  <section id="view-grade" class="hidden flex-1 flex items-center justify-center p-4 sm:p-6">
+    <div class="glass-card w-full max-w-2xl rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 dark:border-slate-800 pb-4">
+        <div class="flex items-center gap-3">
+          <div id="grade-user-avatar" class="w-11 h-11 rounded-2xl bg-brand-600 text-white font-extrabold flex items-center justify-center text-base">
+            ط
+          </div>
+          <div>
+            <h2 id="grade-user-name" class="font-extrabold text-base sm:text-lg text-slate-900 dark:text-white">أهلاً بك</h2>
+            <p id="grade-user-email" class="text-xs text-slate-500 dark:text-slate-400">student@gmail.com</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onclick="logoutUser()"
+          class="px-3 py-2 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 flex items-center gap-1.5 transition cursor-pointer"
+        >
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+          <span>تسجيل الخروج</span>
+        </button>
+      </div>
+
+      <div class="text-center">
+        <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">اختر صفك الدراسي</h1>
+        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+          سيتم تجهيز موادك الدراسية تلقائياً بناءً على اختيارك
+        </p>
+      </div>
+
+      <!-- Grade Choices: 11th vs 12th -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <button
+          type="button"
+          id="btn-select-11"
+          onclick="selectGradeLevel('11')"
+          class="p-5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 hover:border-brand-500 bg-white/70 dark:bg-slate-900/70 text-right transition group cursor-pointer"
+        >
+          <div class="flex items-center justify-between mb-3">
+            <span class="w-11 h-11 rounded-xl bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400 flex items-center justify-center group-hover:scale-105 transition">
+              <i data-lucide="book-open" class="w-5 h-5"></i>
+            </span>
+            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+              4 مواد
+            </span>
+          </div>
+          <h3 class="text-lg font-extrabold text-slate-900 dark:text-white">الصف الحادي عشر</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            عربي • إنجليزي • تاريخ الأردن • التربية الإسلامية
+          </p>
+        </button>
+
+        <button
+          type="button"
+          id="btn-select-12"
+          onclick="selectGradeLevel('12')"
+          class="p-5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 hover:border-brand-500 bg-white/70 dark:bg-slate-900/70 text-right transition group cursor-pointer"
+        >
+          <div class="flex items-center justify-between mb-3">
+            <span class="w-11 h-11 rounded-xl bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400 flex items-center justify-center group-hover:scale-105 transition">
+              <i data-lucide="award" class="w-5 h-5"></i>
+            </span>
+            <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-brand-100 dark:bg-brand-900/60 text-brand-700 dark:text-brand-300">
+              توجيهي
+            </span>
+          </div>
+          <h3 class="text-lg font-extrabold text-slate-900 dark:text-white">الصف الثاني عشر</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            اختر حقلك الدراسي: صحي أو هندسي
+          </p>
+        </button>
+      </div>
+
+      <!-- 12th Grade Track Selector (Shown when 12th is chosen) -->
+      <div id="twelfth-track-box" class="hidden space-y-4 pt-2 border-t border-slate-200/80 dark:border-slate-800">
+        <div class="text-center">
+          <h3 class="text-base font-extrabold text-slate-900 dark:text-white">اختر حقلك في الصف الثاني عشر</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">حدد الحقل الصحي أو الهندسي لعرض المواد الخاصة به</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <button
+            type="button"
+            onclick="confirmProfile('12_health')"
+            class="p-4 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800/70 hover:border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/25 text-right transition cursor-pointer"
+          >
+            <div class="flex items-center gap-2.5 mb-2">
+              <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+                <i data-lucide="heart-pulse" class="w-4 h-4"></i>
+              </div>
+              <span class="font-extrabold text-base text-slate-900 dark:text-white">الحقل الصحي</span>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              إنجليزي متقدم، أحياء، كيمياء، علوم الأرض
+            </p>
+          </button>
+
+          <button
+            type="button"
+            onclick="confirmProfile('12_engineering')"
+            class="p-4 rounded-2xl border-2 border-brand-200 dark:border-brand-800/70 hover:border-brand-500 bg-brand-50/60 dark:bg-brand-950/25 text-right transition cursor-pointer"
+          >
+            <div class="flex items-center gap-2.5 mb-2">
+              <div class="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center">
+                <i data-lucide="cpu" class="w-4 h-4"></i>
+              </div>
+              <span class="font-extrabold text-base text-slate-900 dark:text-white">الحقل الهندسي</span>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              إنجليزي متقدم، فيزياء، رياضيات، علوم الأرض
+            </p>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== VIEW 3: MAIN STUDY DASHBOARD ==================== -->
+  <div id="view-dashboard" class="hidden flex-1 flex flex-col">
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-30 glass-card border-b border-slate-200/80 dark:border-slate-800">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow">
+            <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-extrabold text-base text-slate-900 dark:text-white">Study With Me</span>
+              <span id="badge-profile-label" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-brand-100 dark:bg-brand-900/60 text-brand-700 dark:text-brand-300">
+                الصف الحادي عشر
+              </span>
+            </div>
+            <p id="header-student-info" class="text-xs text-slate-500 dark:text-slate-400"></p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span id="badge-total-minutes" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300">
+            <i data-lucide="clock" class="w-3.5 h-3.5 text-brand-600"></i>
+            <span>0 دقيقة دراسة</span>
+          </span>
+
+          <button
+            type="button"
+            onclick="openGradeSelector()"
+            title="تغيير الصف أو الحقل"
+            class="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 transition cursor-pointer"
+          >
+            <i data-lucide="repeat" class="w-3.5 h-3.5"></i>
+            <span>تغيير الصف</span>
+          </button>
+
+          <button
+            type="button"
+            onclick="toggleDarkMode()"
+            title="تبديل الوضع الليلي والنهاري"
+            class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition cursor-pointer"
+          >
+            <i id="theme-icon" data-lucide="moon" class="w-4 h-4"></i>
+          </button>
+
+          <button
+            type="button"
+            onclick="logoutUser()"
+            title="تسجيل الخروج"
+            class="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-600 dark:text-rose-400 transition cursor-pointer"
+          >
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Section Tabs -->
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 pb-2.5 flex items-center gap-2 overflow-x-auto">
+        <button
+          type="button"
+          data-tab="timer"
+          onclick="switchTab('timer')"
+          class="nav-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold flex items-center gap-2 whitespace-nowrap transition cursor-pointer bg-brand-600 text-white shadow-sm"
+        >
+          <i data-lucide="timer" class="w-4 h-4"></i>
+          <span>المؤقت والدراسة</span>
+        </button>
+
+        <button
+          type="button"
+          data-tab="achievements"
+          onclick="switchTab('achievements')"
+          class="nav-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 whitespace-nowrap transition cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
+          <i data-lucide="trophy" class="w-4 h-4"></i>
+          <span>الإنجازات</span>
+        </button>
+
+        <button
+          type="button"
+          data-tab="friends"
+          onclick="switchTab('friends')"
+          class="nav-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 whitespace-nowrap transition cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
+          <i data-lucide="users" class="w-4 h-4"></i>
+          <span>الدراسة مع الأصدقاء</span>
+        </button>
+
+        <button
+          type="button"
+          data-tab="tasks"
+          onclick="switchTab('tasks')"
+          class="nav-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 whitespace-nowrap transition cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
+          <i data-lucide="check-square" class="w-4 h-4"></i>
+          <span>المهام</span>
+        </button>
+
+        <button
+          type="button"
+          data-tab="ai"
+          onclick="switchTab('ai')"
+          class="nav-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 whitespace-nowrap transition cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
+          <i data-lucide="bot" class="w-4 h-4"></i>
+          <span>مساعد الذكاء الاصطناعي</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Dashboard Content Area -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+      <!-- ==================== TAB 1: STUDY TIMER & AMBIENT SOUNDS ==================== -->
+      <section id="tab-timer" class="tab-panel space-y-6">
+        <!-- Subject Selection Card -->
+        <div class="glass-card rounded-3xl p-5 sm:p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white">1. اختر المادة الدراسية</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">حدد المادة التي ستبدأ بدراستها الآن</p>
+            </div>
+            <span id="selected-subject-pill" class="text-xs font-extrabold px-3 py-1.5 rounded-full bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300">
+              المادة المختارة
+            </span>
+          </div>
+          <div id="subject-selector-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+        </div>
+
+        <!-- Timer & Study With Me Ambient Sounds Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Study Timer Card -->
+          <div class="lg:col-span-7 glass-card rounded-3xl p-6 shadow-sm flex flex-col items-center justify-between space-y-6">
+            <div class="w-full flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <button
+                  type="button"
+                  id="btn-mode-study"
+                  onclick="switchTimerMode('study')"
+                  class="px-3 py-1 rounded-full text-xs font-extrabold bg-brand-600 text-white transition cursor-pointer"
+                >
+                  جلسة دراسة
+                </button>
+                <button
+                  type="button"
+                  id="btn-mode-break"
+                  onclick="switchTimerMode('break')"
+                  class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition cursor-pointer"
+                >
+                  استراحة
+                </button>
+              </div>
+              <span id="timer-active-subject-label" class="text-xs font-bold text-slate-500 dark:text-slate-400"></span>
+            </div>
+
+            <!-- Circular Progress + Clear Monospace Tabular Digits -->
+            <div class="relative w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center">
+              <svg class="w-full h-full -rotate-90" viewBox="0 0 220 220">
+                <circle
+                  cx="110"
+                  cy="110"
+                  r="96"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="10"
+                  class="text-slate-200 dark:text-slate-800"
+                />
+                <circle
+                  id="timer-progress-ring"
+                  cx="110"
+                  cy="110"
+                  r="96"
+                  fill="none"
+                  stroke="var(--brand-600, #2563eb)"
+                  stroke-width="10"
+                  stroke-linecap="round"
+                  stroke-dasharray="603.19"
+                  stroke-dashoffset="0"
+                  class="transition-all duration-300"
+                />
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                <span id="timer-digits" class="timer-digits text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                  25:00
+                </span>
+                <span id="timer-substatus" class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1.5">
+                  جاهز لبدء الجلسة
+                </span>
+              </div>
+            </div>
+
+            <!-- Duration Presets & Custom Minutes -->
+            <div class="w-full space-y-3">
+              <!-- Focus Session Goal Note -->
+              <div class="p-3 rounded-2xl bg-slate-100/80 dark:bg-slate-900/75 border border-slate-200/70 dark:border-slate-800 flex items-center gap-2.5">
+                <i data-lucide="target" class="w-4 h-4 text-brand-600 flex-shrink-0"></i>
+                <input
+                  id="session-focus-goal-input"
+                  type="text"
+                  oninput="updateSessionFocusGoal(this.value)"
+                  placeholder="هدف الجلسة الحالية (مثال: إنهاء الدرس الثاني وحل 5 أسئلة)..."
+                  class="flex-1 bg-transparent text-xs font-bold text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  id="btn-clear-focus-goal"
+                  onclick="clearSessionFocusGoal()"
+                  title="مسح هدف الجلسة"
+                  class="p-1 rounded-lg text-slate-400 hover:text-rose-500 transition cursor-pointer"
+                >
+                  <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+
+              <!-- Balanced Study/Break Cycle Presets -->
+              <div class="flex flex-wrap items-center justify-center gap-1.5">
+                <button type="button" onclick="applyStudyBreakPair(25, 5)" class="px-3 py-1 rounded-xl bg-brand-50 dark:bg-brand-950/40 hover:bg-brand-100 dark:hover:bg-brand-900/60 text-brand-700 dark:text-brand-300 text-[11px] font-extrabold transition cursor-pointer">
+                  دورة 25 / 5 د
+                </button>
+                <button type="button" onclick="applyStudyBreakPair(45, 10)" class="px-3 py-1 rounded-xl bg-brand-50 dark:bg-brand-950/40 hover:bg-brand-100 dark:hover:bg-brand-900/60 text-brand-700 dark:text-brand-300 text-[11px] font-extrabold transition cursor-pointer">
+                  دورة 45 / 10 د
+                </button>
+                <button type="button" onclick="applyStudyBreakPair(50, 10)" class="px-3 py-1 rounded-xl bg-brand-50 dark:bg-brand-950/40 hover:bg-brand-100 dark:hover:bg-brand-900/60 text-brand-700 dark:text-brand-300 text-[11px] font-extrabold transition cursor-pointer">
+                  دورة 50 / 10 د
+                </button>
+              </div>
+
+              <div id="study-duration-presets" class="flex flex-wrap items-center justify-center gap-2">
+                <button type="button" onclick="setSessionMinutes(15)" class="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-brand-100 dark:hover:bg-brand-900/50 text-xs font-extrabold transition cursor-pointer">
+                  15 دقيقة
+                </button>
+                <button type="button" onclick="setSessionMinutes(25)" class="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-brand-100 dark:hover:bg-brand-900/50 text-xs font-extrabold transition cursor-pointer">
+                  25 دقيقة
+                </button>
+                <button type="button" onclick="setSessionMinutes(45)" class="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-brand-100 dark:hover:bg-brand-900/50 text-xs font-extrabold transition cursor-pointer">
+                  45 دقيقة
+                </button>
+                <button type="button" onclick="setSessionMinutes(60)" class="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-brand-100 dark:hover:bg-brand-900/50 text-xs font-extrabold transition cursor-pointer">
+                  60 دقيقة
+                </button>
+              </div>
+
+              <div id="break-duration-presets" class="hidden flex-wrap items-center justify-center gap-2">
+                <button type="button" onclick="setBreakMinutes(5)" class="px-3.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold transition cursor-pointer">
+                  استراحة 5 د
+                </button>
+                <button type="button" onclick="setBreakMinutes(10)" class="px-3.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold transition cursor-pointer">
+                  استراحة 10 د
+                </button>
+                <button type="button" onclick="setBreakMinutes(15)" class="px-3.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold transition cursor-pointer">
+                  استراحة 15 د
+                </button>
+              </div>
+
+              <div class="flex flex-wrap items-center justify-center gap-2">
+                <input
+                  id="custom-duration-input"
+                  type="number"
+                  min="1"
+                  max="240"
+                  value="25"
+                  aria-label="مدة الجلسة أو الاستراحة بالدقائق"
+                  class="w-24 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-center text-sm font-bold focus:outline-none focus:ring-2 focus:ring-brand-500"
+                />
+                <button
+                  type="button"
+                  id="btn-apply-custom-duration"
+                  onclick="applyCustomMinutes()"
+                  class="px-3.5 py-2 rounded-xl bg-slate-200/80 dark:bg-slate-800 hover:bg-slate-300/80 dark:hover:bg-slate-700 text-xs font-extrabold transition cursor-pointer"
+                >
+                  تحديد المدة (دقيقة)
+                </button>
+                <label class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-900 text-[11px] font-bold text-slate-600 dark:text-slate-300 cursor-pointer">
+                  <input
+                    id="auto-break-toggle"
+                    type="checkbox"
+                    checked
+                    onchange="toggleAutoBreak(this.checked)"
+                    class="w-3.5 h-3.5 accent-emerald-600 rounded cursor-pointer"
+                  />
+                  <span>انتقال تلقائي للاستراحة</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Main Timer Controls -->
+            <div class="flex flex-wrap items-center justify-center gap-3 w-full">
+              <button
+                type="button"
+                id="btn-toggle-timer"
+                onclick="toggleTimer()"
+                class="px-6 py-3 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-sm shadow-md flex items-center gap-2 transition cursor-pointer"
+              >
+                <i id="timer-play-icon" data-lucide="play" class="w-4 h-4"></i>
+                <span id="timer-play-label">ابدأ الجلسة</span>
+              </button>
+
+              <button
+                type="button"
+                onclick="resetTimer()"
+                class="px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-sm flex items-center gap-2 transition cursor-pointer"
+              >
+                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                <span>إعادة ضبط</span>
+              </button>
+
+              <button
+                type="button"
+                onclick="testCompletionAlert()"
+                class="px-4 py-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-700 dark:text-amber-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+              >
+                <i data-lucide="volume-2" class="w-4 h-4"></i>
+                <span>تجربة التنبيه الصوتي</span>
+              </button>
+            </div>
+            <p class="text-[11px] text-slate-400 text-center">
+              اختصار لوحة المفاتيح: اضغط <kbd class="px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-slate-800 font-mono text-[10px]">Space</kbd> للبدء أو الإيقاف المؤقت أثناء تبويب المؤقت
+            </p>
+          </div>
+
+          <!-- Study With Me Ambient Sounds Card -->
+          <div class="lg:col-span-5 glass-card rounded-3xl p-6 shadow-sm flex flex-col justify-between space-y-5">
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <h3 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                  <i data-lucide="headphones" class="w-5 h-5 text-brand-600"></i>
+                  <span>أجواء Study With Me</span>
+                </h3>
+                <button
+                  type="button"
+                  onclick="stopAllAmbientSounds()"
+                  class="text-xs font-bold text-rose-600 dark:text-rose-400 hover:underline cursor-pointer"
+                >
+                  إيقاف الكل
+                </button>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                أضف أصواتاً هادئة مع تحكم مستقل بمستوى صوت كل أجواء
+              </p>
+            </div>
+
+            <div id="ambient-sounds-list" class="space-y-3"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 2: ACHIEVEMENTS (SUBJECTS, UNITS & LESSONS) ==================== -->
+      <section id="tab-achievements" class="tab-panel hidden space-y-6">
+        <div class="glass-card rounded-3xl p-5 sm:p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">الإنجازات والوحدات والدروس</h2>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+              تابع ساعات الدراسة والأوسمة ونسبة الإتقان، وأضف الوحدات أو عدّلها، واضغط على أي وحدة لعرض وإدارة دروسها
+            </p>
+          </div>
+          <div id="achievements-summary-badges" class="flex flex-wrap items-center gap-2"></div>
+        </div>
+
+        <div id="achievements-subjects-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+      </section>
+
+      <!-- ==================== TAB 3: STUDY WITH FRIENDS VIA SESSION CODE ONLY ==================== -->
+      <section id="tab-friends" class="tab-panel hidden space-y-5">
+        <!-- Clean Header + Mode Switcher ("إنشاء غرفة" vs "الانضمام بكود") -->
+        <div class="glass-card rounded-3xl p-5 sm:p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <i data-lucide="users" class="w-5 h-5 text-brand-600"></i>
+              <span>الدراسة مع صديق</span>
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+              جلسة هادئة ومشتركة على نفس المادة — يبدأها منشئ الغرفة وتبدأ فوراً عند صديقه ويُحتسب الإنجاز لكليكما
+            </p>
+          </div>
+
+          <div class="inline-flex items-center p-1 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
+            <button
+              type="button"
+              id="btn-buddy-mode-create"
+              onclick="setBuddySetupMode('create')"
+              class="px-4 py-2 rounded-xl text-xs font-extrabold bg-brand-600 text-white shadow-xs transition cursor-pointer"
+            >
+              إنشاء غرفة
+            </button>
+            <button
+              type="button"
+              id="btn-buddy-mode-join"
+              onclick="setBuddySetupMode('join')"
+              class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition cursor-pointer"
+            >
+              الانضمام بكود
+            </button>
+          </div>
+        </div>
+
+        <!-- Compact Room Setup Card ("إنشاء غرفة" OR "الانضمام بكود") -->
+        <div id="buddy-setup-card" class="glass-card rounded-3xl p-5 sm:p-6 shadow-sm">
+          <!-- Create Room Form -->
+          <form id="buddy-create-form" onsubmit="createBuddyRoom(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-3.5 items-end">
+            <div class="sm:col-span-4">
+              <label for="buddy-subject-select" class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
+                المادة الدراسية
+              </label>
+              <select
+                id="buddy-subject-select"
+                class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-bold focus:outline-none focus:ring-2 focus:ring-brand-500"
+              ></select>
+            </div>
+
+            <div class="sm:col-span-3">
+              <label for="buddy-duration-input" class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
+                مدة الجلسة (دقيقة)
+              </label>
+              <div class="flex items-center gap-1.5">
+                <input
+                  id="buddy-duration-input"
+                  type="number"
+                  min="1"
+                  max="180"
+                  value="25"
+                  class="w-20 px-3 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-center text-xs sm:text-sm font-mono font-bold focus:outline-none focus:ring-2 focus:ring-brand-500"
+                />
+                <button type="button" onclick="quickSetBuddyDuration(25)" class="px-2.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-brand-100 dark:hover:bg-brand-900/50 text-[11px] font-extrabold transition cursor-pointer">25</button>
+                <button type="button" onclick="quickSetBuddyDuration(45)" class="px-2.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-brand-100 dark:hover:bg-brand-900/50 text-[11px] font-extrabold transition cursor-pointer">45</button>
+              </div>
+            </div>
+
+            <div class="sm:col-span-2">
+              <label for="buddy-friend-name-input" class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
+                اسم الصديق
+              </label>
+              <input
+                id="buddy-friend-name-input"
+                type="text"
+                placeholder="اختياري"
+                class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-bold focus:outline-none focus:ring-2 focus:ring-brand-500"
+              />
+            </div>
+
+            <div class="sm:col-span-3">
+              <button
+                type="submit"
+                class="w-full py-2.5 px-4 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2 transition cursor-pointer"
+              >
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                <span>توليد كود الجلسة</span>
+              </button>
+            </div>
+          </form>
+
+          <!-- Join Room by Code Form -->
+          <form id="buddy-join-form" onsubmit="joinBuddyRoomByCode(event)" class="hidden flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <div class="flex-1">
+              <label for="buddy-join-code-input" class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">
+                أدخل كود الغرفة الذي شاركه معك صديقك
+              </label>
+              <input
+                id="buddy-join-code-input"
+                type="text"
+                required
+                placeholder="مثال: SWM-4829"
+                class="w-full px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-mono font-bold uppercase focus:outline-none focus:ring-2 focus:ring-brand-500"
+              />
+            </div>
+            <button
+              type="submit"
+              class="sm:mt-6 px-6 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2 transition cursor-pointer"
+            >
+              <i data-lucide="log-in" class="w-4 h-4"></i>
+              <span>دخول الجلسة</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Focused Active Room Card: Code + Copy, Shared Timer, Two-Partner Progress Strip -->
+        <div id="buddy-room-stage" class="glass-card rounded-3xl p-6 sm:p-7 shadow-sm space-y-6"></div>
+      </section>
+
+      <!-- ==================== TAB 4: DAILY & WEEKLY TASKS ==================== -->
+      <section id="tab-tasks" class="tab-panel hidden space-y-6">
+        <div class="glass-card rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">المهام اليومية والأسبوعية</h2>
+              <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                نظّم مهامك الدراسية اليومية أو الأسبوعية وتابع إنجازها
+              </p>
+            </div>
+
+            <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900 p-1 rounded-2xl">
+              <button type="button" data-task-filter="all" onclick="setTaskFilter('all')" class="task-filter-btn px-3 py-1.5 rounded-xl text-xs font-extrabold bg-brand-600 text-white transition cursor-pointer">
+                الكل
+              </button>
+              <button type="button" data-task-filter="daily" onclick="setTaskFilter('daily')" class="task-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 transition cursor-pointer">
+                يومي
+              </button>
+              <button type="button" data-task-filter="weekly" onclick="setTaskFilter('weekly')" class="task-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 transition cursor-pointer">
+                أسبوعي
+              </button>
+            </div>
+          </div>
+
+          <form onsubmit="addTaskItem(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+            <input
+              id="new-task-title"
+              type="text"
+              required
+              placeholder="اكتب المهمة الدراسية (مثال: حل أسئلة الوحدة الأولى)"
+              class="sm:col-span-5 px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            />
+
+            <select
+              id="new-task-period"
+              class="sm:col-span-3 px-3 py-3 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+              <option value="daily">مهمة يومية</option>
+              <option value="weekly">مهمة أسبوعية</option>
+            </select>
+
+            <select
+              id="new-task-subject"
+              class="sm:col-span-2 px-3 py-3 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-brand-500"
+            ></select>
+
+            <button
+              type="submit"
+              class="sm:col-span-2 py-3 px-4 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-sm flex items-center justify-center gap-1.5 transition cursor-pointer"
+            >
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>إضافة</span>
+            </button>
+          </form>
+        </div>
+
+        <div id="tasks-columns-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Daily Tasks -->
+          <div id="daily-tasks-card" class="glass-card rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                <i data-lucide="sun" class="w-5 h-5 text-amber-500"></i>
+                <span>المهام اليومية</span>
+              </h3>
+              <span id="daily-tasks-count" class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800">0</span>
+            </div>
+            <div id="daily-tasks-list" class="space-y-2.5"></div>
+          </div>
+
+          <!-- Weekly Tasks -->
+          <div id="weekly-tasks-card" class="glass-card rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                <i data-lucide="calendar-days" class="w-5 h-5 text-brand-600"></i>
+                <span>المهام الأسبوعية</span>
+              </h3>
+              <span id="weekly-tasks-count" class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800">0</span>
+            </div>
+            <div id="weekly-tasks-list" class="space-y-2.5"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 5: AI STUDY ASSISTANT ==================== -->
+      <section id="tab-ai" class="tab-panel hidden">
+        <div class="glass-card rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 dark:border-slate-800 pb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-2xl bg-brand-600 text-white flex items-center justify-center">
+                <i data-lucide="bot" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h2 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white">مساعد الذكاء الاصطناعي</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                  اسأل عن شرح مفهوم، خطة مراجعة، أو أسئلة تدريبية حسب صفك وحقلك ومادتك
+                </p>
+              </div>
+            </div>
+
+            <select
+              id="ai-subject-select"
+              class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-brand-500"
+            ></select>
+          </div>
+
+          <!-- Quick Prompt Chips -->
+          <div class="flex flex-wrap gap-2">
+            <button type="button" onclick="useQuickPrompt('اشرح لي مفهوماً أساسياً في هذه المادة بأسلوب مبسط')" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-brand-100 dark:hover:bg-brand-900/50 text-xs font-bold transition cursor-pointer">
+              شرح مفهوم أساسي
+            </button>
+            <button type="button" onclick="useQuickPrompt('ضع لي خطة مراجعة سريعة ومركزة لهذه المادة')" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-brand-100 dark:hover:bg-brand-900/50 text-xs font-bold transition cursor-pointer">
+              خطة مراجعة مركزة
+            </button>
+            <button type="button" onclick="useQuickPrompt('ولّد لي 3 أسئلة تدريبية لاختبار فهمي في هذه المادة')" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-brand-100 dark:hover:bg-brand-900/50 text-xs font-bold transition cursor-pointer">
+              أسئلة تدريبية
+            </button>
+            <button type="button" onclick="useQuickPrompt('ما أفضل طريقة لحفظ وفهم دروس هذه المادة دون نسيان؟')" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-brand-100 dark:hover:bg-brand-900/50 text-xs font-bold transition cursor-pointer">
+              طريقة الحفظ والفهم
+            </button>
+          </div>
+
+          <!-- Chat Messages -->
+          <div id="ai-chat-messages" class="h-80 overflow-y-auto p-4 rounded-2xl bg-slate-100/80 dark:bg-slate-900/70 space-y-3"></div>
+
+          <!-- Chat Input -->
+          <form onsubmit="handleAiSubmit(event)" class="flex items-center gap-2">
+            <input
+              id="ai-prompt-input"
+              type="text"
+              required
+              placeholder="اكتب سؤالك الدراسي هنا..."
+              class="flex-1 px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            />
+            <button
+              type="submit"
+              class="px-5 py-3 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-sm flex items-center gap-1.5 transition cursor-pointer"
+            >
+              <i data-lucide="send" class="w-4 h-4"></i>
+              <span>إرسال</span>
+            </button>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ==================== SESSION END MODAL ==================== -->
+  <div id="session-complete-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+    <div class="glass-card w-full max-w-md rounded-3xl p-6 sm:p-7 text-center shadow-2xl space-y-4">
+      <div class="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 mx-auto flex items-center justify-center">
+        <i data-lucide="coffee" class="w-8 h-8"></i>
+      </div>
+      <h3 id="complete-modal-title" class="text-xl font-extrabold text-slate-900 dark:text-white">
+        انتهت الجلسة الدراسية وحان وقت الراحة
+      </h3>
+      <p id="complete-modal-desc" class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        أحسنت! تم تسجيل وقت جلستك الدراسية بنجاح. خذ قسطاً من الراحة قبل الجلسة القادمة.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-2.5 pt-2">
+        <button
+          type="button"
+          onclick="startBreakTimer()"
+          class="flex-1 py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm transition cursor-pointer"
+        >
+          بدء راحة (5 دقائق)
+        </button>
+        <button
+          type="button"
+          onclick="closeSessionModal()"
+          class="flex-1 py-3 px-4 rounded-2xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-sm transition cursor-pointer"
+        >
+          إغلاق
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== UNIT LESSONS MODAL / DRAWER ==================== -->
+  <div id="unit-lessons-modal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/60 backdrop-blur-xs">
+    <div class="glass-card w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-4 max-h-[88vh] flex flex-col">
+      <div class="flex items-start justify-between gap-3 border-b border-slate-200/80 dark:border-slate-800 pb-3.5">
+        <div>
+          <span id="lessons-modal-subject-tag" class="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300">
+            المادة
+          </span>
+          <h3 id="lessons-modal-unit-title" class="text-lg font-extrabold text-slate-900 dark:text-white mt-1">
+            دروس الوحدة
+          </h3>
+          <p id="lessons-modal-progress-summary" class="text-xs text-slate-500 dark:text-slate-400">
+            0 من 0 دروس مكتملة
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onclick="closeUnitLessonsModal()"
+          aria-label="إغلاق نافذة الدروس"
+          class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition cursor-pointer"
+        >
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Add Lesson Form -->
+      <form onsubmit="handleAddLessonInModal(event)" class="flex items-center gap-2">
+        <input
+          id="modal-new-lesson-input"
+          type="text"
+          required
+          placeholder="أضف درساً جديداً لهذه الوحدة..."
+          class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+        />
+        <button
+          type="submit"
+          class="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs sm:text-sm font-extrabold flex items-center gap-1 transition cursor-pointer"
+        >
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>إضافة درس</span>
+        </button>
+      </form>
+
+      <!-- Lessons List -->
+      <div id="lessons-modal-list" class="flex-1 overflow-y-auto space-y-2 py-1"></div>
+    </div>
+  </div>
+
+  <!-- ==================== EDIT UNIT MODAL ==================== -->
+  <div id="edit-unit-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+    <div class="glass-card w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4">
+      <h3 class="text-lg font-extrabold text-slate-900 dark:text-white">تعديل بيانات الوحدة</h3>
+      <form onsubmit="handleSaveUnitEdits(event)" class="space-y-4">
+        <div>
+          <label for="edit-unit-title-input" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+            اسم الوحدة
+          </label>
+          <input
+            id="edit-unit-title-input"
+            type="text"
+            required
+            class="w-full px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-brand-500"
+          />
+        </div>
+
+        <div>
+          <label for="edit-unit-lesson-count-input" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+            عدد الدروس في الوحدة (سيتم ضبط قائمة الدروس تلقائياً)
+          </label>
+          <input
+            id="edit-unit-lesson-count-input"
+            type="number"
+            min="1"
+            max="30"
+            required
+            class="w-full px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-mono font-bold focus:outline-none focus:ring-2 focus:ring-brand-500"
+          />
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-1">
+          <button
+            type="button"
+            onclick="closeEditUnitModal()"
+            class="px-4 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-xs font-bold cursor-pointer"
+          >
+            إلغاء
+          </button>
+          <button
+            type="submit"
+            class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-extrabold cursor-pointer"
+          >
+            حفظ التعديلات
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== BOTTOM COLOR PICKER BAR ==================== -->
+  <footer class="glass-card border-t border-slate-200/80 dark:border-slate-800 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300">
+        <i data-lucide="palette" class="w-4 h-4 text-brand-600"></i>
+        <span>اختر لون المنصة:</span>
+      </div>
+
+      <div id="bottom-color-swatches" class="flex items-center gap-2.5">
+        <button
+          type="button"
+          data-color="blue"
+          onclick="applyBrandColor('blue')"
+          aria-label="أزرق"
+          class="color-swatch w-7 h-7 rounded-full bg-blue-600 ring-2 ring-offset-2 ring-blue-600 dark:ring-offset-slate-950 transition cursor-pointer"
+        ></button>
+        <button
+          type="button"
+          data-color="emerald"
+          onclick="applyBrandColor('emerald')"
+          aria-label="زمردي"
+          class="color-swatch w-7 h-7 rounded-full bg-emerald-600 hover:scale-110 transition cursor-pointer"
+        ></button>
+        <button
+          type="button"
+          data-color="violet"
+          onclick="applyBrandColor('violet')"
+          aria-label="بنفسجي"
+          class="color-swatch w-7 h-7 rounded-full bg-violet-600 hover:scale-110 transition cursor-pointer"
+        ></button>
+        <button
+          type="button"
+          data-color="rose"
+          onclick="applyBrandColor('rose')"
+          aria-label="وردي"
+          class="color-swatch w-7 h-7 rounded-full bg-rose-600 hover:scale-110 transition cursor-pointer"
+        ></button>
+        <button
+          type="button"
+          data-color="amber"
+          onclick="applyBrandColor('amber')"
+          aria-label="عنبري"
+          class="color-swatch w-7 h-7 rounded-full bg-amber-500 hover:scale-110 transition cursor-pointer"
+        ></button>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ==================== 1. CURRICULUM & ACCENT COLOR PALETTES ====================
+    const CURRICULUM = {
+      '11': {
+        label: 'الصف الحادي عشر',
+        subjects: [
+          { id: 'arabic_11', name: 'عربي', icon: 'book-text', color: '#059669' },
+          { id: 'english_11', name: 'إنجليزي', icon: 'languages', color: '#2563eb' },
+          { id: 'jordan_history_11', name: 'تاريخ الأردن', icon: 'landmark', color: '#9f1239' },
+          { id: 'islamic_11', name: 'التربية الإسلامية', icon: 'moon-star', color: '#0d9488' }
+        ]
+      },
+      '12_health': {
+        label: 'الصف الثاني عشر • الحقل الصحي',
+        subjects: [
+          { id: 'adv_english_h', name: 'إنجليزي متقدم', icon: 'languages', color: '#2563eb' },
+          { id: 'biology_h', name: 'أحياء', icon: 'dna', color: '#16a34a' },
+          { id: 'chemistry_h', name: 'كيمياء', icon: 'flask-conical', color: '#7c3aed' },
+          { id: 'earth_science_h', name: 'علوم الأرض', icon: 'globe', color: '#d97706' }
+        ]
+      },
+      '12_engineering': {
+        label: 'الصف الثاني عشر • الحقل الهندسي',
+        subjects: [
+          { id: 'adv_english_e', name: 'إنجليزي متقدم', icon: 'languages', color: '#2563eb' },
+          { id: 'physics_e', name: 'فيزياء', icon: 'atom', color: '#0284c7' },
+          { id: 'math_e', name: 'رياضيات', icon: 'sigma', color: '#e11d48' },
+          { id: 'earth_science_e', name: 'علوم الأرض', icon: 'globe', color: '#d97706' }
+        ]
+      }
+    };
+
+    function getSubjectMeta(subjectId) {
+      const profile = CURRICULUM[appState.profileKey];
+      if (profile) {
+        const found = profile.subjects.find(s => s.id === subjectId);
+        if (found) return found;
+      }
+      for (const key of Object.keys(CURRICULUM)) {
+        const found = CURRICULUM[key].subjects.find(s => s.id === subjectId);
+        if (found) return found;
+      }
+      return { id: subjectId || 'general', name: 'مادة دراسية', icon: 'book-open', color: '#2563eb' };
+    }
+
+    const COLOR_PALETTES = {
+      blue: {
+        '--brand-50': '#eff6ff',
+        '--brand-100': '#dbeafe',
+        '--brand-200': '#bfdbfe',
+        '--brand-400': '#60a5fa',
+        '--brand-500': '#3b82f6',
+        '--brand-600': '#2563eb',
+        '--brand-700': '#1d4ed8',
+        lightPrimary: 'rgba(59, 130, 246, 0.065)',
+        lightSecondary: 'rgba(37, 99, 235, 0.045)',
+        darkPrimary: 'rgba(59, 130, 246, 0.085)',
+        darkSecondary: 'rgba(37, 99, 235, 0.055)'
+      },
+      emerald: {
+        '--brand-50': '#ecfdf5',
+        '--brand-100': '#d1fae5',
+        '--brand-200': '#a7f3d0',
+        '--brand-400': '#34d399',
+        '--brand-500': '#10b981',
+        '--brand-600': '#059669',
+        '--brand-700': '#047857',
+        lightPrimary: 'rgba(16, 185, 129, 0.065)',
+        lightSecondary: 'rgba(5, 150, 105, 0.045)',
+        darkPrimary: 'rgba(16, 185, 129, 0.085)',
+        darkSecondary: 'rgba(5, 150, 105, 0.055)'
+      },
+      violet: {
+        '--brand-50': '#f5f3ff',
+        '--brand-100': '#ede9fe',
+        '--brand-200': '#ddd6fe',
+        '--brand-400': '#a78bfa',
+        '--brand-500': '#8b5cf6',
+        '--brand-600': '#7c3aed',
+        '--brand-700': '#6d28d9',
+        lightPrimary: 'rgba(139, 92, 246, 0.065)',
+        lightSecondary: 'rgba(124, 58, 237, 0.045)',
+        darkPrimary: 'rgba(139, 92, 246, 0.085)',
+        darkSecondary: 'rgba(124, 58, 237, 0.055)'
+      },
+      rose: {
+        '--brand-50': '#fff1f2',
+        '--brand-100': '#ffe4e6',
+        '--brand-200': '#fecdd3',
+        '--brand-400': '#fb7185',
+        '--brand-500': '#f43f5e',
+        '--brand-600': '#e11d48',
+        '--brand-700': '#be123c',
+        lightPrimary: 'rgba(244, 63, 94, 0.065)',
+        lightSecondary: 'rgba(225, 29, 72, 0.045)',
+        darkPrimary: 'rgba(244, 63, 94, 0.085)',
+        darkSecondary: 'rgba(225, 29, 72, 0.055)'
+      },
+      amber: {
+        '--brand-50': '#fffbeb',
+        '--brand-100': '#fef3c7',
+        '--brand-200': '#fde68a',
+        '--brand-400': '#fbbf24',
+        '--brand-500': '#f59e0b',
+        '--brand-600': '#d97706',
+        '--brand-700': '#b45309',
+        lightPrimary: 'rgba(245, 158, 11, 0.07)',
+        lightSecondary: 'rgba(217, 119, 6, 0.048)',
+        darkPrimary: 'rgba(245, 158, 11, 0.085)',
+        darkSecondary: 'rgba(217, 119, 6, 0.055)'
+      }
+    };
+
+    const STORAGE_KEY = 'study_with_me_jordan_tawjihi_v1';
+
+    // ==================== 2. APPLICATION STATE ====================
+    let appState = {
+      user: null,          // { name, email }
+      profileKey: null,    // '11' | '12_health' | '12_engineering'
+      activeSubjectId: null,
+      activeTab: 'timer',
+      taskFilter: 'all',   // 'all' | 'daily' | 'weekly'
+      color: 'blue',
+      darkMode: false,
+      progress: {},        // { [subjectId]: { minutes, sessions, units: [{ id, title, lessons: [{ id, title, done }] }] } }
+      focusGoal: '',       // Current micro-goal note for the study session
+      buddyRoom: null,     // { code, subjectId, durationMin, remainingSec, running, hostName, partnerName, partnerJoined, completedSessions }
+      tasks: [],           // [{ id, title, period: 'daily'|'weekly', subjectId, done }]
+      chat: []             // [{ role: 'user'|'assistant', text }]
+    };
+
+    function loadSavedState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          appState = {
+            ...appState,
+            ...parsed,
+            // Never restore a saved Google account automatically on load
+            user: null,
+            profileKey: null,
+            progress: parsed.progress && typeof parsed.progress === 'object' ? parsed.progress : {},
+            tasks: Array.isArray(parsed.tasks) ? parsed.tasks : [],
+            chat: Array.isArray(parsed.chat) ? parsed.chat : []
+          };
+        }
+      } catch (err) {
+        console.error('Error loading saved state:', err);
+      }
+    }
+
+    function saveState() {
+      try {
+        // Persist study data/preferences without retaining any saved Google account session
+        const stateToPersist = {
+          ...appState,
+          user: null,
+          profileKey: null
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToPersist));
+      } catch (err) {
+        console.error('Error saving state:', err);
+      }
+    }
+
+    function ensureSubjectProgress(subjectId) {
+      if (!appState.progress[subjectId]) {
+        appState.progress[subjectId] = {
+          minutes: 0,
+          sessions: 0,
+          units: [
+            {
+              id: 'u_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+              title: 'الوحدة الأولى',
+              lessons: [
+                { id: 'l_' + Date.now() + '_1', title: 'الدرس الأول: مقدمة ومفاهيم أساسية', done: false },
+                { id: 'l_' + Date.now() + '_2', title: 'الدرس الثاني: شرح وتطبيقات عملية', done: false }
+              ]
+            }
+          ]
+        };
+      } else {
+        if (!Array.isArray(appState.progress[subjectId].units)) {
+          appState.progress[subjectId].units = [];
+        }
+        if (typeof appState.progress[subjectId].sessions !== 'number') {
+          appState.progress[subjectId].sessions = Math.floor((appState.progress[subjectId].minutes || 0) / 25);
+        }
+      }
+      return appState.progress[subjectId];
+    }
+
+    // ==================== 3. UI HELPERS (TOAST, ICONS, THEME, COLOR) ====================
+    function refreshIcons() {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+
+      const styles = {
+        info: 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900',
+        success: 'bg-emerald-600 text-white',
+        warning: 'bg-amber-600 text-white',
+        error: 'bg-rose-600 text-white'
+      };
+
+      const el = document.createElement('div');
+      el.className = `px-4 py-3 rounded-2xl shadow-lg text-xs sm:text-sm font-bold text-center pointer-events-auto transition-all ${styles[type] || styles.info}`;
+      el.textContent = message;
+      container.appendChild(el);
+
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(-8px)';
+        setTimeout(() => el.remove(), 220);
+      }, 3000);
+    }
+
+    function applyThemeMode() {
+      const root = document.documentElement;
+      if (appState.darkMode) {
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
+      const icon = document.getElementById('theme-icon');
+      if (icon) {
+        icon.setAttribute('data-lucide', appState.darkMode ? 'sun' : 'moon');
+        refreshIcons();
+      }
+    }
+
+    function toggleDarkMode() {
+      appState.darkMode = !appState.darkMode;
+      saveState();
+      applyThemeMode();
+      applyBrandColor(appState.color);
+    }
+
+    function applyBrandColor(colorName) {
+      const palette = COLOR_PALETTES[colorName] || COLOR_PALETTES.blue;
+      appState.color = COLOR_PALETTES[colorName] ? colorName : 'blue';
+      const root = document.documentElement;
+      const isDark = Boolean(appState.darkMode);
+
+      Object.entries(palette).forEach(([prop, val]) => {
+        if (prop.startsWith('--brand-')) {
+          root.style.setProperty(prop, val);
+        }
+      });
+
+      root.style.setProperty('--bg-wash-primary', isDark ? palette.darkPrimary : palette.lightPrimary);
+      root.style.setProperty('--bg-wash-secondary', isDark ? palette.darkSecondary : palette.lightSecondary);
+      root.style.setProperty('--bg-wash-base', isDark ? '#020617' : '#f8fafc');
+
+      document.querySelectorAll('.color-swatch').forEach(btn => {
+        const isSelected = btn.getAttribute('data-color') === appState.color;
+        btn.classList.toggle('ring-2', isSelected);
+        btn.classList.toggle('ring-offset-2', isSelected);
+        btn.classList.toggle('ring-slate-900', isSelected && !appState.darkMode);
+        btn.classList.toggle('ring-white', isSelected && appState.darkMode);
+        btn.classList.toggle('scale-110', isSelected);
+      });
+
+      saveState();
+    }
+
+    // ==================== 3.5 BUDDY ROOM SYNC CHANNEL & MIC ENGINE ====================
+    const BUDDY_CHANNEL_NAME = 'swm_buddy_room_sync_v1';
+    const BUDDY_STORAGE_KEY = 'swm_shared_buddy_room_v1';
+    let buddyBroadcastChannel = null;
+    let buddySyncPollInterval = null;
+    let buddyPreviewRoleOverride = null; // null | 'host' | 'partner' for single-tab role testing
+
+    const buddyMicState = {
+      active: false,
+      stream: null,
+      audioCtx: null,
+      analyser: null,
+      levelRafId: null,
+      levelPct: 0,
+      statusText: 'المايكروفون متوقف (اضغط لتشغيله)'
+    };
+
+    function getClientInstanceId() {
+      const key = 'swm_client_instance_id_v1';
+      let cid = '';
+      try {
+        cid = sessionStorage.getItem(key) || '';
+        if (!cid) {
+          cid = 'inst_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7);
+          sessionStorage.setItem(key, cid);
+        }
+      } catch (e) {
+        cid = 'inst_fallback';
+      }
+      return cid;
+    }
+
+    function isRoomCreator(room) {
+      if (!room) return false;
+      if (buddyPreviewRoleOverride === 'host') return true;
+      if (buddyPreviewRoleOverride === 'partner') return false;
+      const myCid = getClientInstanceId();
+      if (room.creatorClientId && myCid) {
+        return room.creatorClientId === myCid;
+      }
+      if (room.creatorEmail && appState.user?.email) {
+        return String(room.creatorEmail).toLowerCase() === String(appState.user.email).toLowerCase();
+      }
+      return true;
+    }
+
+    function setBuddyRolePreview(role) {
+      buddyPreviewRoleOverride = role === 'host' || role === 'partner' ? role : null;
+      renderBuddyRoom();
+      const label = buddyPreviewRoleOverride === 'host'
+        ? 'وضع معاينة: منشئ الغرفة'
+        : buddyPreviewRoleOverride === 'partner'
+          ? 'وضع معاينة: الصديق المنضم'
+          : 'الوضع التلقائي حسب الحساب/التبويب';
+      showToast(label, 'info');
+    }
+
+    function playSessionStartCue() {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      try {
+        const tones = [440, 554.37, 659.25];
+        tones.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.value = freq;
+          const start = ctx.currentTime + idx * 0.1;
+          gain.gain.setValueAtTime(0.001, start);
+          gain.gain.exponentialRampToValueAtTime(0.11, start + 0.025);
+          gain.gain.exponentialRampToValueAtTime(0.001, start + 0.25);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(start);
+          osc.stop(start + 0.27);
+        });
+      } catch (e) {}
+    }
+
+    function initBuddySyncChannel() {
+      getClientInstanceId();
+      try {
+        if ('BroadcastChannel' in window && !buddyBroadcastChannel) {
+          buddyBroadcastChannel = new BroadcastChannel(BUDDY_CHANNEL_NAME);
+          buddyBroadcastChannel.onmessage = (event) => {
+            const payload = event?.data;
+            if (!payload || !payload.room) return;
+            applyRemoteBuddyRoomSnapshot(payload.room, payload.action || 'sync');
+          };
+        }
+      } catch (err) {
+        console.warn('BroadcastChannel unavailable:', err);
+      }
+
+      window.addEventListener('storage', (event) => {
+        if (event.key === BUDDY_STORAGE_KEY && event.newValue) {
+          try {
+            const parsed = JSON.parse(event.newValue);
+            if (parsed && parsed.room) {
+              applyRemoteBuddyRoomSnapshot(parsed.room, parsed.action || 'sync');
+            }
+          } catch (err) {}
+        }
+      });
+
+      // Polling fallback ensures cross-tab/storage updates never miss a tick
+      if (!buddySyncPollInterval) {
+        buddySyncPollInterval = setInterval(() => {
+          try {
+            const raw = localStorage.getItem(BUDDY_STORAGE_KEY);
+            if (!raw) return;
+            const parsed = JSON.parse(raw);
+            if (!parsed || !parsed.room) return;
+            const incomingUpdated = Number(parsed.room.updatedAt || 0);
+            const currentUpdated = Number(appState.buddyRoom?.updatedAt || 0);
+            if (
+              !appState.buddyRoom ||
+              String(appState.buddyRoom.code || '').toUpperCase() === String(parsed.room.code || '').toUpperCase()
+            ) {
+              if (
+                incomingUpdated > currentUpdated ||
+                Boolean(parsed.room.running) !== Boolean(appState.buddyRoom?.running) ||
+                Number(parsed.room.completedSessions || 0) !== Number(appState.buddyRoom?.completedSessions || 0)
+              ) {
+                applyRemoteBuddyRoomSnapshot(parsed.room, parsed.action || 'sync');
+              }
+            }
+          } catch (e) {}
+        }, 400);
+      }
+    }
+
+    function normalizeBuddyRoom(room) {
+      if (!room) return null;
+      const durationMin = Math.max(1, Math.min(180, parseInt(room.durationMin || 25, 10) || 25));
+      const breakMin = Math.max(1, Math.min(60, parseInt(room.breakMin || 5, 10) || 5));
+      const phase = room.phase === 'break' ? 'break' : 'study';
+      const defaultSec = (phase === 'break' ? breakMin : durationMin) * 60;
+      const computedRem = room.running && room.targetEndTime
+        ? Math.max(0, Math.ceil((room.targetEndTime - Date.now()) / 1000))
+        : (typeof room.remainingSec === 'number' ? Math.max(0, room.remainingSec) : defaultSec);
+
+      return {
+        code: String(room.code || 'SWM-1000').toUpperCase(),
+        subjectId: room.subjectId || 'general',
+        durationMin,
+        breakMin,
+        phase,
+        remainingSec: computedRem,
+        targetEndTime: room.running && room.targetEndTime ? room.targetEndTime : null,
+        running: Boolean(room.running),
+        creatorClientId: room.creatorClientId || getClientInstanceId(),
+        creatorEmail: room.creatorEmail || appState.user?.email || '',
+        hostName: room.hostName || 'منشئ الغرفة',
+        partnerName: room.partnerName || 'الصديق المنضم',
+        partnerJoined: Boolean(room.partnerJoined),
+        completedSessions: Number(room.completedSessions || 0),
+        lastCreditedSessionNum: Number(room.lastCreditedSessionNum || 0),
+        updatedAt: Number(room.updatedAt || Date.now())
+      };
+    }
+
+    function broadcastBuddyRoom(action = 'sync') {
+      if (!appState.buddyRoom) {
+        try {
+          localStorage.setItem(BUDDY_STORAGE_KEY, JSON.stringify({ room: null, action: 'leave', updatedAt: Date.now() }));
+          if (buddyBroadcastChannel) {
+            buddyBroadcastChannel.postMessage({ room: null, action: 'leave', updatedAt: Date.now() });
+          }
+        } catch (err) {}
+        return;
+      }
+
+      appState.buddyRoom = normalizeBuddyRoom({
+        ...appState.buddyRoom,
+        updatedAt: Date.now()
+      });
+      saveState();
+
+      const envelope = {
+        room: appState.buddyRoom,
+        action,
+        updatedAt: appState.buddyRoom.updatedAt
+      };
+
+      try {
+        localStorage.setItem(BUDDY_STORAGE_KEY, JSON.stringify(envelope));
+      } catch (err) {}
+
+      if (buddyBroadcastChannel) {
+        try {
+          buddyBroadcastChannel.postMessage(envelope);
+        } catch (err) {}
+      }
+    }
+
+    function computeBuddyRemainingSeconds(room) {
+      if (!room) return 0;
+      if (room.running && room.targetEndTime) {
+        return Math.max(0, Math.ceil((room.targetEndTime - Date.now()) / 1000));
+      }
+      return Math.max(0, Number(room.remainingSec || 0));
+    }
+
+    function applyRemoteBuddyRoomSnapshot(incomingRoom, action = 'sync') {
+      if (!incomingRoom) {
+        stopBuddyTimerLoop();
+        appState.buddyRoom = null;
+        buddyPreviewRoleOverride = null;
+        saveState();
+        renderBuddyRoom();
+        return;
+      }
+
+      const normalized = normalizeBuddyRoom(incomingRoom);
+      normalized.remainingSec = computeBuddyRemainingSeconds(normalized);
+
+      const prevRoom = appState.buddyRoom;
+      appState.buddyRoom = normalized;
+      saveState();
+
+      // Credit completed shared sessions once on the friend side as well
+      const sessionNum = Number(normalized.completedSessions || 0);
+      const alreadyCredited = Number(prevRoom?.lastCreditedSessionNum || 0);
+      if (sessionNum > alreadyCredited && normalized.subjectId) {
+        const prog = ensureSubjectProgress(normalized.subjectId);
+        const earnedMin = Math.max(1, Number(normalized.durationMin || 25));
+        prog.minutes = Number(prog.minutes || 0) + earnedMin;
+        prog.sessions = Number(prog.sessions || 0) + (sessionNum - alreadyCredited);
+        appState.buddyRoom.lastCreditedSessionNum = sessionNum;
+        saveState();
+        updateTotalMinutesBadge();
+        renderAchievements();
+      }
+
+      if (normalized.running) {
+        startBuddyIntervalWatcher();
+      } else {
+        stopBuddyTimerLoop();
+      }
+
+      if (action === 'start' && (!prevRoom || !prevRoom.running)) {
+        const phaseLabel = normalized.phase === 'break' ? 'وقت الاستراحة' : 'الجلسة الدراسية المشتركة';
+        playSessionStartCue();
+        showToast(`بدأ منشئ الغرفة (${normalized.hostName}) ${phaseLabel} وبدأت تلقائياً عندك الآن`, 'success');
+      } else if (action === 'pause' && prevRoom && prevRoom.running && !normalized.running) {
+        showToast('أوقف منشئ الغرفة المؤقت مؤقتاً', 'info');
+      } else if (action === 'reset') {
+        showToast('أعاد منشئ الغرفة ضبط المؤقت المشترك', 'info');
+      } else if (action === 'break_updated') {
+        showToast(`تم تحديث مدة الاستراحة إلى ${normalized.breakMin} دقيقة`, 'info');
+      }
+
+      renderBuddyRoom();
+    }
+
+    function updateBuddyMicMeterUi() {
+      const bar = document.getElementById('buddy-mic-level-bar');
+      const pctEl = document.getElementById('buddy-mic-level-pct');
+      const statusEl = document.getElementById('buddy-mic-status-text');
+      if (bar) {
+        bar.style.width = `${Math.max(0, Math.min(100, buddyMicState.levelPct))}%`;
+      }
+      if (pctEl) {
+        pctEl.textContent = `${Math.round(buddyMicState.levelPct)}%`;
+      }
+      if (statusEl) {
+        statusEl.textContent = buddyMicState.statusText;
+      }
+    }
+
+    function stopBuddyMicrophone() {
+      if (buddyMicState.levelRafId) {
+        cancelAnimationFrame(buddyMicState.levelRafId);
+        buddyMicState.levelRafId = null;
+      }
+      if (buddyMicState.stream) {
+        buddyMicState.stream.getTracks().forEach(track => {
+          try { track.stop(); } catch (e) {}
+        });
+        buddyMicState.stream = null;
+      }
+      if (buddyMicState.audioCtx) {
+        try { buddyMicState.audioCtx.close(); } catch (e) {}
+        buddyMicState.audioCtx = null;
+        buddyMicState.analyser = null;
+      }
+      const audioEl = document.getElementById('buddy-mic-audio');
+      if (audioEl) {
+        audioEl.srcObject = null;
+      }
+      buddyMicState.active = false;
+      buddyMicState.levelPct = 0;
+      buddyMicState.statusText = 'المايكروفون متوقف (اضغط لتشغيله)';
+      updateBuddyMicMeterUi();
+    }
+
+    async function toggleBuddyMicrophone() {
+      if (buddyMicState.active) {
+        stopBuddyMicrophone();
+        renderBuddyRoom();
+        showToast('تم إيقاف المايكروفون في الغرفة', 'info');
+        return;
+      }
+
+      if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+        buddyMicState.statusText = 'المتصفح لا يدعم الوصول المباشر للمايكروفون في هذا السياق';
+        renderBuddyRoom();
+        showToast('تعذر الوصول للمايكروفون في هذا المتصفح', 'warning');
+        return;
+      }
+
+      try {
+        buddyMicState.statusText = 'جاري طلب إذن المايكروفون...';
+        updateBuddyMicMeterUi();
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          },
+          video: false
+        });
+
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = AudioCtx ? new AudioCtx() : null;
+        let analyser = null;
+        let dataArray = null;
+
+        if (audioCtx) {
+          if (audioCtx.state === 'suspended') {
+            await audioCtx.resume().catch(() => {});
+          }
+          const source = audioCtx.createMediaStreamSource(stream);
+          analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 256;
+          source.connect(analyser);
+          dataArray = new Uint8Array(analyser.frequencyBinCount);
+        }
+
+        const audioEl = document.getElementById('buddy-mic-audio');
+        if (audioEl) {
+          audioEl.srcObject = stream;
+          audioEl.muted = true; // Prevent self-echo feedback while keeping live stream active
+        }
+
+        buddyMicState.stream = stream;
+        buddyMicState.audioCtx = audioCtx;
+        buddyMicState.analyser = analyser;
+        buddyMicState.active = true;
+        buddyMicState.statusText = 'المايكروفون نشط ومفتوح داخل الغرفة المشتركة';
+
+        const tickMeter = () => {
+          if (!buddyMicState.active || !buddyMicState.analyser || !dataArray) return;
+          buddyMicState.analyser.getByteFrequencyData(dataArray);
+          let sum = 0;
+          for (let i = 0; i < dataArray.length; i++) {
+            sum += dataArray[i];
+          }
+          const avg = sum / dataArray.length;
+          buddyMicState.levelPct = Math.min(100, Math.round((avg / 140) * 100));
+          updateBuddyMicMeterUi();
+          buddyMicState.levelRafId = requestAnimationFrame(tickMeter);
+        };
+        tickMeter();
+
+        renderBuddyRoom();
+        showToast('تم تشغيل المايكروفون داخل غرفة الدراسة', 'success');
+      } catch (err) {
+        console.warn('Microphone access error:', err);
+        const reason = err?.name === 'NotAllowedError'
+          ? 'تم رفض إذن المايكروفون من المتصفح (يمكنك المحاولة مجدداً من إعدادات الموقع)'
+          : err?.name === 'NotFoundError'
+            ? 'لم يتم العثور على جهاز مايكروفون متصل'
+            : 'تعذر تفعيل المايكروفون حالياً في هذه البيئة';
+        buddyMicState.active = false;
+        buddyMicState.levelPct = 0;
+        buddyMicState.statusText = reason;
+        renderBuddyRoom();
+        showToast(reason, 'warning');
+      }
+    }
+
+    // ==================== 4. GOOGLE SIGN-IN & GRADE / TRACK FLOW ====================
+    function completeGoogleSignIn({ name, email }) {
+      const cleanEmail = String(email || '').trim().toLowerCase();
+      if (!cleanEmail || !cleanEmail.includes('@')) {
+        showToast('يرجى إدخال بريد إلكتروني صحيح لحساب جوجل', 'warning');
+        return false;
+      }
+
+      const fallbackName = cleanEmail.split('@')[0] || 'طالب';
+      const cleanName = String(name || '').trim() || fallbackName;
+      const isSameUser = appState.user && String(appState.user.email || '').trim().toLowerCase() === cleanEmail;
+
+      appState.user = {
+        name: cleanName,
+        email: cleanEmail
+      };
+
+      if (!isSameUser) {
+        appState.profileKey = null;
+        appState.activeSubjectId = null;
+      }
+
+      saveState();
+      routeViews();
+      showToast(`تم تسجيل الدخول بنجاح، أهلاً ${cleanName}`, 'success');
+      return true;
+    }
+
+    function handleGoogleLogin(event) {
+      if (event && typeof event.preventDefault === 'function') {
+        event.preventDefault();
+      }
+      const nameInput = document.getElementById('student-name-input');
+      const emailInput = document.getElementById('google-email-input');
+      const name = nameInput ? nameInput.value.trim() : '';
+      const email = emailInput ? emailInput.value.trim() : '';
+
+      if (!email) {
+        showToast('يرجى إدخال البريد الإلكتروني لحساب جوجل', 'warning');
+        if (emailInput) emailInput.focus();
+        return;
+      }
+
+      completeGoogleSignIn({
+        name: name || email.split('@')[0],
+        email
+      });
+    }
+
+    function logoutUser() {
+      stopTimerLoop();
+      stopBuddyTimerLoop();
+      stopAllAmbientSounds();
+      appState.user = null;
+      appState.profileKey = null;
+      appState.activeSubjectId = null;
+      saveState();
+      routeViews();
+      showToast('تم تسجيل الخروج بنجاح', 'info');
+    }
+
+    function selectGradeLevel(grade) {
+      const trackBox = document.getElementById('twelfth-track-box');
+      const btn11 = document.getElementById('btn-select-11');
+      const btn12 = document.getElementById('btn-select-12');
+
+      if (grade === '11') {
+        if (trackBox) trackBox.classList.add('hidden');
+        if (btn11) btn11.classList.add('border-brand-600');
+        if (btn12) btn12.classList.remove('border-brand-600');
+        confirmProfile('11');
+      } else {
+        if (btn12) btn12.classList.add('border-brand-600');
+        if (btn11) btn11.classList.remove('border-brand-600');
+        if (trackBox) trackBox.classList.remove('hidden');
+      }
+      refreshIcons();
+    }
+
+    function confirmProfile(profileKey) {
+      const profile = CURRICULUM[profileKey];
+      if (!profile) return;
+
+      appState.profileKey = profileKey;
+      const firstSubject = profile.subjects[0];
+      appState.activeSubjectId = firstSubject ? firstSubject.id : null;
+      profile.subjects.forEach(sub => ensureSubjectProgress(sub.id));
+
+      saveState();
+      showToast(`تم اختيار ${profile.label}`, 'success');
+      routeViews();
+    }
+
+    function openGradeSelector() {
+      stopTimerLoop();
+      appState.profileKey = null;
+      saveState();
+      routeViews();
+    }
+
+    function routeViews() {
+      const loginView = document.getElementById('view-login');
+      const gradeView = document.getElementById('view-grade');
+      const dashView = document.getElementById('view-dashboard');
+
+      loginView.classList.add('hidden');
+      gradeView.classList.add('hidden');
+      dashView.classList.add('hidden');
+
+      if (!appState.user || !appState.user.email) {
+        loginView.classList.remove('hidden');
+      } else if (!appState.profileKey || !CURRICULUM[appState.profileKey]) {
+        gradeView.classList.remove('hidden');
+        document.getElementById('grade-user-name').textContent = `مرحباً، ${appState.user.name}`;
+        document.getElementById('grade-user-email').textContent = appState.user.email;
+        document.getElementById('grade-user-avatar').textContent = appState.user.name.trim().charAt(0) || 'ط';
+        document.getElementById('twelfth-track-box').classList.add('hidden');
+      } else {
+        dashView.classList.remove('hidden');
+        renderDashboard();
+      }
+      refreshIcons();
+    }
+
+    // ==================== 5. DASHBOARD RENDERING & TABS ====================
+    function renderDashboard() {
+      const profile = CURRICULUM[appState.profileKey];
+      if (!profile) return;
+
+      const validSubjectIds = profile.subjects.map(s => s.id);
+      if (!validSubjectIds.includes(appState.activeSubjectId)) {
+        appState.activeSubjectId = profile.subjects[0].id;
+      }
+      profile.subjects.forEach(s => ensureSubjectProgress(s.id));
+
+      document.getElementById('badge-profile-label').textContent = profile.label;
+      document.getElementById('header-student-info').textContent = `${appState.user.name} • ${appState.user.email}`;
+
+      updateTotalMinutesBadge();
+      renderSubjectSelector();
+      renderFocusGoalInput();
+      renderAmbientSoundsUI();
+      renderAchievements();
+      renderBuddyRoom();
+      renderTasks();
+      renderAiChat();
+      switchTab(appState.activeTab || 'timer');
+      refreshIcons();
+    }
+
+    function renderFocusGoalInput() {
+      const input = document.getElementById('session-focus-goal-input');
+      if (input) {
+        input.value = String(appState.focusGoal || '');
+      }
+    }
+
+    function updateSessionFocusGoal(val) {
+      appState.focusGoal = String(val || '');
+      saveState();
+    }
+
+    function clearSessionFocusGoal() {
+      appState.focusGoal = '';
+      saveState();
+      renderFocusGoalInput();
+    }
+
+    function applyStudyBreakPair(studyMins, breakMins) {
+      const sCheck = sanitizePositiveMinutes(studyMins, 25, 240);
+      const bCheck = sanitizePositiveMinutes(breakMins, 5, 60);
+      if (!sCheck.valid || !bCheck.valid) return;
+      timerEngine.studyDurationSec = sCheck.value * 60;
+      timerEngine.breakDurationSec = bCheck.value * 60;
+      setSessionMinutes(sCheck.value);
+      showToast(`تم ضبط الدورة على ${sCheck.value} دقيقة دراسة و ${bCheck.value} دقيقة استراحة`, 'success');
+    }
+
+    function updateTotalMinutesBadge() {
+      const profile = CURRICULUM[appState.profileKey];
+      if (!profile) return;
+      let total = 0;
+      profile.subjects.forEach(s => {
+        total += Number(appState.progress[s.id]?.minutes || 0);
+      });
+      const badge = document.getElementById('badge-total-minutes');
+      if (badge) {
+        badge.innerHTML = `<i data-lucide="clock" class="w-3.5 h-3.5 text-brand-600"></i><span>${total} دقيقة دراسة</span>`;
+        refreshIcons();
+      }
+    }
+
+    function switchTab(tabName) {
+      appState.activeTab = tabName;
+      saveState();
+
+      document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.classList.toggle('hidden', panel.id !== `tab-${tabName}`);
+      });
+
+      document.querySelectorAll('.nav-tab').forEach(btn => {
+        const active = btn.getAttribute('data-tab') === tabName;
+        btn.className = active
+          ? 'nav-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold flex items-center gap-2 whitespace-nowrap transition cursor-pointer bg-brand-600 text-white shadow-sm'
+          : 'nav-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 whitespace-nowrap transition cursor-pointer text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800';
+      });
+
+      if (tabName === 'tasks') renderTasks();
+      if (tabName === 'achievements') renderAchievements();
+      if (tabName === 'friends') renderBuddyRoom();
+      if (tabName === 'ai') renderAiChat();
+      refreshIcons();
+    }
+
+    // ==================== 6. STUDY TIMER & AUDIO / SPEECH ALERTS ====================
+    const timerEngine = {
+      studyDurationSec: 25 * 60,
+      breakDurationSec: 5 * 60,
+      durationSec: 25 * 60,
+      remainingSec: 25 * 60,
+      running: false,
+      isBreak: false,
+      autoBreak: true,
+      targetEndTime: null,
+      completing: false,
+      intervalId: null,
+      audioCtx: null
+    };
+
+    function sanitizePositiveMinutes(rawValue, fallbackMin = 25, maxMin = 240) {
+      const parsed = Number.parseInt(String(rawValue ?? ''), 10);
+      if (!Number.isFinite(parsed) || Number.isNaN(parsed) || parsed < 1) {
+        return { valid: false, value: fallbackMin };
+      }
+      return { valid: true, value: Math.min(maxMin, parsed) };
+    }
+
+    function syncTimerModeBadgeUi() {
+      const studyBtn = document.getElementById('btn-mode-study');
+      const breakBtn = document.getElementById('btn-mode-break');
+      const studyPresets = document.getElementById('study-duration-presets');
+      const breakPresets = document.getElementById('break-duration-presets');
+      const customInput = document.getElementById('custom-duration-input');
+      const applyBtn = document.getElementById('btn-apply-custom-duration');
+
+      if (studyBtn) {
+        studyBtn.className = !timerEngine.isBreak
+          ? 'px-3 py-1 rounded-full text-xs font-extrabold bg-brand-600 text-white transition cursor-pointer'
+          : 'px-3 py-1 rounded-full text-xs font-extrabold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-brand-100 dark:hover:bg-brand-950/50 transition cursor-pointer';
+      }
+      if (breakBtn) {
+        breakBtn.className = timerEngine.isBreak
+          ? 'px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-600 text-white transition cursor-pointer'
+          : 'px-3 py-1 rounded-full text-xs font-extrabold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition cursor-pointer';
+      }
+      if (studyPresets) studyPresets.classList.toggle('hidden', timerEngine.isBreak);
+      if (studyPresets) studyPresets.classList.toggle('flex', !timerEngine.isBreak);
+      if (breakPresets) breakPresets.classList.toggle('hidden', !timerEngine.isBreak);
+      if (breakPresets) breakPresets.classList.toggle('flex', timerEngine.isBreak);
+
+      if (customInput) {
+        customInput.max = timerEngine.isBreak ? '60' : '240';
+        customInput.value = String(
+          Math.max(1, Math.round((timerEngine.isBreak ? timerEngine.breakDurationSec : timerEngine.studyDurationSec) / 60))
+        );
+      }
+      if (applyBtn) {
+        applyBtn.textContent = timerEngine.isBreak ? 'تحديد الاستراحة (دقيقة)' : 'تحديد المدة (دقيقة)';
+      }
+    }
+
+    function switchTimerMode(mode) {
+      const targetBreak = mode === 'break';
+      stopTimerLoop();
+      timerEngine.completing = false;
+      timerEngine.isBreak = targetBreak;
+      timerEngine.durationSec = targetBreak ? timerEngine.breakDurationSec : timerEngine.studyDurationSec;
+      timerEngine.remainingSec = timerEngine.durationSec;
+      timerEngine.targetEndTime = null;
+
+      syncTimerModeBadgeUi();
+      const substatus = document.getElementById('timer-substatus');
+      if (substatus) {
+        substatus.textContent = targetBreak ? 'جاهز لبدء وقت الاستراحة' : 'جاهز لبدء الجلسة';
+      }
+      updateTimerVisuals();
+    }
+
+    function toggleAutoBreak(checked) {
+      timerEngine.autoBreak = Boolean(checked);
+      showToast(
+        timerEngine.autoBreak
+          ? 'تم تفعيل الانتقال التلقائي إلى الاستراحة بعد انتهاء الجلسة'
+          : 'تم إيقاف الانتقال التلقائي للاستراحة',
+        'info'
+      );
+    }
+
+    function getAudioContext() {
+      if (!timerEngine.audioCtx) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          timerEngine.audioCtx = new AudioCtx();
+        }
+      }
+      if (timerEngine.audioCtx && timerEngine.audioCtx.state === 'suspended') {
+        timerEngine.audioCtx.resume().catch(() => {});
+      }
+      return timerEngine.audioCtx;
+    }
+
+    function renderSubjectSelector() {
+      const profile = CURRICULUM[appState.profileKey];
+      const grid = document.getElementById('subject-selector-grid');
+      if (!profile || !grid) return;
+
+      const activeSub = profile.subjects.find(s => s.id === appState.activeSubjectId) || profile.subjects[0];
+      const pill = document.getElementById('selected-subject-pill');
+      const activeLabel = document.getElementById('timer-active-subject-label');
+      if (pill) {
+        pill.textContent = activeSub.name;
+        pill.style.backgroundColor = `${activeSub.color}1e`;
+        pill.style.color = activeSub.color;
+      }
+      if (activeLabel) {
+        activeLabel.textContent = `المادة: ${activeSub.name}`;
+      }
+
+      grid.innerHTML = profile.subjects.map(sub => {
+        const selected = sub.id === activeSub.id;
+        return `
+          <button
+            type="button"
+            onclick="selectStudySubject('${sub.id}')"
+            style="border-color: ${selected ? sub.color : ''}; ${selected ? `background-color: ${sub.color}18;` : ''}"
+            class="p-3.5 rounded-2xl border-2 text-right flex items-center gap-3 transition cursor-pointer ${
+              selected
+                ? 'shadow-xs'
+                : 'border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/50 hover:border-slate-300 dark:hover:border-slate-700'
+            }"
+          >
+            <div
+              style="background-color: ${sub.color};"
+              class="w-9 h-9 rounded-xl text-white flex items-center justify-center flex-shrink-0"
+            >
+              <i data-lucide="${sub.icon}" class="w-4 h-4"></i>
+            </div>
+            <span class="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white leading-tight">${sub.name}</span>
+          </button>
+        `;
+      }).join('');
+      refreshIcons();
+    }
+
+    function selectStudySubject(subjectId) {
+      appState.activeSubjectId = subjectId;
+      saveState();
+      renderSubjectSelector();
+      showToast('تم تحديد المادة الدراسية', 'info');
+    }
+
+    function setSessionMinutes(mins) {
+      const check = sanitizePositiveMinutes(mins, 25, 240);
+      if (!check.valid) {
+        showToast('أدخل مدة صحيحة بين 1 و 240 دقيقة', 'warning');
+        return;
+      }
+      stopTimerLoop();
+      timerEngine.completing = false;
+      timerEngine.isBreak = false;
+      timerEngine.studyDurationSec = check.value * 60;
+      timerEngine.durationSec = check.value * 60;
+      timerEngine.remainingSec = check.value * 60;
+      timerEngine.targetEndTime = null;
+      syncTimerModeBadgeUi();
+      const substatus = document.getElementById('timer-substatus');
+      if (substatus) substatus.textContent = 'جاهز لبدء الجلسة';
+      updateTimerVisuals();
+    }
+
+    function setBreakMinutes(mins) {
+      const check = sanitizePositiveMinutes(mins, 5, 60);
+      if (!check.valid) {
+        showToast('أدخل مدة استراحة صحيحة بين 1 و 60 دقيقة', 'warning');
+        return;
+      }
+      stopTimerLoop();
+      timerEngine.completing = false;
+      timerEngine.isBreak = true;
+      timerEngine.breakDurationSec = check.value * 60;
+      timerEngine.durationSec = check.value * 60;
+      timerEngine.remainingSec = check.value * 60;
+      timerEngine.targetEndTime = null;
+      syncTimerModeBadgeUi();
+      const substatus = document.getElementById('timer-substatus');
+      if (substatus) substatus.textContent = 'جاهز لبدء وقت الاستراحة';
+      updateTimerVisuals();
+    }
+
+    function applyCustomMinutes() {
+      const input = document.getElementById('custom-duration-input');
+      const maxAllowed = timerEngine.isBreak ? 60 : 240;
+      const check = sanitizePositiveMinutes(input ? input.value : '', timerEngine.isBreak ? 5 : 25, maxAllowed);
+      if (!check.valid) {
+        showToast(`أدخل مدة صحيحة بين 1 و ${maxAllowed} دقيقة`, 'warning');
+        return;
+      }
+      if (timerEngine.isBreak) {
+        setBreakMinutes(check.value);
+        showToast(`تم ضبط مدة الاستراحة على ${check.value} دقيقة`, 'info');
+      } else {
+        setSessionMinutes(check.value);
+        showToast(`تم ضبط مدة الجلسة على ${check.value} دقيقة`, 'info');
+      }
+    }
+
+    function startTimerTicker() {
+      if (timerEngine.intervalId) {
+        clearInterval(timerEngine.intervalId);
+        timerEngine.intervalId = null;
+      }
+      timerEngine.intervalId = setInterval(() => {
+        if (!timerEngine.running || timerEngine.completing) return;
+        const endTs = Number(timerEngine.targetEndTime || 0);
+        if (!endTs) return;
+        const left = Math.max(0, Math.ceil((endTs - Date.now()) / 1000));
+        timerEngine.remainingSec = left;
+        updateTimerVisuals();
+        if (left <= 0) {
+          finishTimerSession();
+        }
+      }, 200);
+    }
+
+    function toggleTimer() {
+      getAudioContext();
+      if (timerEngine.running) {
+        if (timerEngine.targetEndTime) {
+          timerEngine.remainingSec = Math.max(0, Math.ceil((timerEngine.targetEndTime - Date.now()) / 1000));
+        }
+        stopTimerLoop();
+        updateTimerVisuals();
+        const substatus = document.getElementById('timer-substatus');
+        if (substatus) substatus.textContent = timerEngine.isBreak ? 'الاستراحة متوقفة مؤقتاً' : 'الجلسة متوقفة مؤقتاً';
+      } else {
+        timerEngine.completing = false;
+        const fallbackSec = timerEngine.isBreak ? timerEngine.breakDurationSec : timerEngine.studyDurationSec;
+        if (!Number.isFinite(timerEngine.remainingSec) || timerEngine.remainingSec <= 0) {
+          timerEngine.durationSec = Math.max(60, fallbackSec || 25 * 60);
+          timerEngine.remainingSec = timerEngine.durationSec;
+        }
+        timerEngine.targetEndTime = Date.now() + timerEngine.remainingSec * 1000;
+        timerEngine.running = true;
+        const playIcon = document.getElementById('timer-play-icon');
+        const playLabel = document.getElementById('timer-play-label');
+        const substatus = document.getElementById('timer-substatus');
+        if (playIcon) playIcon.setAttribute('data-lucide', 'pause');
+        if (playLabel) playLabel.textContent = 'إيقاف مؤقت';
+        if (substatus) {
+          substatus.textContent = timerEngine.isBreak ? 'وقت الاستراحة جارٍ...' : 'جاري التركيز والمذاكرة...';
+        }
+        refreshIcons();
+        updateTimerVisuals();
+        startTimerTicker();
+      }
+    }
+
+    function stopTimerLoop() {
+      if (timerEngine.intervalId) {
+        clearInterval(timerEngine.intervalId);
+        timerEngine.intervalId = null;
+      }
+      timerEngine.running = false;
+      timerEngine.targetEndTime = null;
+      const icon = document.getElementById('timer-play-icon');
+      const label = document.getElementById('timer-play-label');
+      if (icon) icon.setAttribute('data-lucide', 'play');
+      if (label) label.textContent = timerEngine.isBreak ? 'ابدأ الاستراحة' : 'ابدأ الجلسة';
+      refreshIcons();
+    }
+
+    function resetTimer() {
+      stopTimerLoop();
+      timerEngine.completing = false;
+      timerEngine.durationSec = timerEngine.isBreak ? timerEngine.breakDurationSec : timerEngine.studyDurationSec;
+      timerEngine.remainingSec = timerEngine.durationSec;
+      timerEngine.targetEndTime = null;
+      syncTimerModeBadgeUi();
+      const substatus = document.getElementById('timer-substatus');
+      if (substatus) {
+        substatus.textContent = timerEngine.isBreak ? 'جاهز لبدء وقت الاستراحة' : 'جاهز لبدء الجلسة';
+      }
+      updateTimerVisuals();
+    }
+
+    function updateTimerVisuals() {
+      const rawSec = Number.isFinite(timerEngine.remainingSec) ? Math.max(0, Math.floor(timerEngine.remainingSec)) : 0;
+      const mins = Math.floor(rawSec / 60);
+      const remSec = rawSec % 60;
+      const formatted = `${String(mins).padStart(2, '0')}:${String(remSec).padStart(2, '0')}`;
+
+      const digitsEl = document.getElementById('timer-digits');
+      if (digitsEl) digitsEl.textContent = formatted;
+
+      const baseTitle = 'Study With Me — منصة الدراسة الذكية';
+      if (timerEngine.running) {
+        const modePrefix = timerEngine.isBreak ? 'استراحة' : 'دراسة';
+        document.title = `${formatted} • ${modePrefix} — Study With Me`;
+      } else {
+        document.title = baseTitle;
+      }
+
+      const ring = document.getElementById('timer-progress-ring');
+      const totalDuration = Math.max(1, Number(timerEngine.durationSec || 1));
+      if (ring) {
+        const circumference = 2 * Math.PI * 96; // 603.19
+        const ratio = Math.max(0, Math.min(1, rawSec / totalDuration));
+        ring.style.strokeDashoffset = String(circumference * (1 - ratio));
+        ring.setAttribute('stroke', timerEngine.isBreak ? '#059669' : 'var(--brand-600, #2563eb)');
+      }
+    }
+
+    function playSessionEndChimeAndVoice(messageText = 'انتهت الجلسة الدراسية وحان وقت الراحة') {
+      const ctx = getAudioContext();
+      if (ctx) {
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          const start = ctx.currentTime + idx * 0.16;
+          gain.gain.setValueAtTime(0.001, start);
+          gain.gain.exponentialRampToValueAtTime(0.18, start + 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.001, start + 0.45);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(start);
+          osc.stop(start + 0.48);
+        });
+      }
+
+      if ('speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(messageText);
+          utterance.lang = 'ar-SA';
+          utterance.rate = 0.96;
+          setTimeout(() => {
+            try {
+              window.speechSynthesis.speak(utterance);
+            } catch (e) {}
+          }, 550);
+        } catch (e) {}
+      }
+    }
+
+    function testCompletionAlert() {
+      playSessionEndChimeAndVoice('انتهت الجلسة الدراسية وحان وقت الراحة');
+      showToast('انتهت الجلسة الدراسية وحان وقت الراحة', 'success');
+    }
+
+    function finishTimerSession() {
+      if (timerEngine.completing) return;
+      timerEngine.completing = true;
+
+      const wasBreak = Boolean(timerEngine.isBreak);
+      const completedMinutes = Math.max(1, Math.round(Math.max(60, Number(timerEngine.durationSec || 1500)) / 60));
+      const activeSubId = appState.activeSubjectId;
+
+      stopTimerLoop();
+      timerEngine.remainingSec = 0;
+      updateTimerVisuals();
+
+      if (!wasBreak && activeSubId) {
+        const prog = ensureSubjectProgress(activeSubId);
+        prog.minutes = Number(prog.minutes || 0) + completedMinutes;
+        prog.sessions = Number(prog.sessions || 0) + 1;
+        saveState();
+        updateTotalMinutesBadge();
+        renderAchievements();
+      }
+
+      const alertText = wasBreak
+        ? 'انتهت فترة الاستراحة، يمكنك العودة للدراسة الآن'
+        : 'انتهت الجلسة الدراسية وحان وقت الراحة';
+
+      playSessionEndChimeAndVoice(alertText);
+
+      const modalTitle = document.getElementById('complete-modal-title');
+      const modalDesc = document.getElementById('complete-modal-desc');
+      const primaryActionBtn = document.getElementById('complete-modal-primary-btn');
+
+      if (wasBreak) {
+        if (modalTitle) modalTitle.textContent = 'انتهت فترة الاستراحة!';
+        if (modalDesc) modalDesc.textContent = 'أصبحت جاهزاً للبدء بجلسة دراسة جديدة بكل تركيز ونشاط.';
+        if (primaryActionBtn) {
+          primaryActionBtn.textContent = 'بدء جلسة دراسة جديدة';
+          primaryActionBtn.onclick = startStudyAfterBreak;
+        }
+      } else {
+        const breakMins = Math.max(1, Math.round(timerEngine.breakDurationSec / 60));
+        if (modalTitle) modalTitle.textContent = 'انتهت الجلسة الدراسية وحان وقت الراحة';
+        if (modalDesc) {
+          modalDesc.textContent = `أحسنت! تم تسجيل ${completedMinutes} دقيقة دراسة. خذ استراحة (${breakMins} دقيقة) الآن.`;
+        }
+        if (primaryActionBtn) {
+          primaryActionBtn.textContent = `بدء استراحة (${breakMins} دقائق)`;
+          primaryActionBtn.onclick = startBreakTimer;
+        }
+      }
+
+      const modal = document.getElementById('session-complete-modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+      refreshIcons();
+
+      if (!wasBreak && timerEngine.autoBreak) {
+        setTimeout(() => {
+          const modalVisible = modal && !modal.classList.contains('hidden');
+          if (modalVisible && !timerEngine.running) {
+            startBreakTimer();
+            showToast('بدأ وقت الاستراحة تلقائياً', 'info');
+          }
+        }, 1600);
+      }
+      timerEngine.completing = false;
+    }
+
+    function startBreakTimer() {
+      const breakSec = Math.max(60, Number(timerEngine.breakDurationSec || 5 * 60));
+      closeSessionModal(false);
+      timerEngine.completing = false;
+      timerEngine.isBreak = true;
+      timerEngine.durationSec = breakSec;
+      timerEngine.remainingSec = breakSec;
+      syncTimerModeBadgeUi();
+      updateTimerVisuals();
+      toggleTimer();
+    }
+
+    function startStudyAfterBreak() {
+      const studySec = Math.max(60, Number(timerEngine.studyDurationSec || 25 * 60));
+      closeSessionModal(false);
+      timerEngine.completing = false;
+      timerEngine.isBreak = false;
+      timerEngine.durationSec = studySec;
+      timerEngine.remainingSec = studySec;
+      syncTimerModeBadgeUi();
+      updateTimerVisuals();
+      toggleTimer();
+    }
+
+    function closeSessionModal(shouldReset = true) {
+      const modal = document.getElementById('session-complete-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+      timerEngine.completing = false;
+      if (shouldReset) {
+        resetTimer();
+      }
+    }
+
+    // ==================== 7. STUDY WITH ME AMBIENT SOUNDS ====================
+    const AMBIENT_SOUNDS = [
+      { id: 'rain', name: 'صوت المطر الهادئ', desc: 'أجواء مطر ناعمة للتركيز', icon: 'cloud-rain' },
+      { id: 'waves', name: 'أمواج البحر', desc: 'إيقاع بحري مريح للأعصاب', icon: 'waves' },
+      { id: 'fireplace', name: 'دفء المدفأة', desc: 'فرقعات هادئة في جلسة مسائية', icon: 'flame' },
+      { id: 'focus', name: 'موجات التركيز (Brown Noise)', desc: 'ضوضاء بنية هادئة وثابتة للدراسة', icon: 'sparkles' }
+    ];
+
+    const activeAmbientNodes = {}; // { [id]: { stopFn, gainNode, volume } }
+    const ambientSoundVolumes = {
+      rain: 0.45,
+      waves: 0.45,
+      fireplace: 0.45,
+      focus: 0.45
+    };
+
+    function renderAmbientSoundsUI() {
+      const container = document.getElementById('ambient-sounds-list');
+      if (!container) return;
+
+      container.innerHTML = AMBIENT_SOUNDS.map(snd => {
+        const isPlaying = Boolean(activeAmbientNodes[snd.id]);
+        const volPct = Math.round((ambientSoundVolumes[snd.id] ?? 0.45) * 100);
+        return `
+          <div class="p-3.5 rounded-2xl border transition space-y-2.5 ${
+            isPlaying
+              ? 'border-brand-600 bg-brand-50/80 dark:bg-brand-950/35'
+              : 'border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/50'
+          }">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center ${
+                  isPlaying
+                    ? 'bg-brand-600 text-white'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+                }">
+                  <i data-lucide="${snd.icon}" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <div class="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white">${snd.name}</div>
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400">${snd.desc}</div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onclick="toggleAmbientSound('${snd.id}')"
+                class="px-3.5 py-2 rounded-xl text-xs font-extrabold transition cursor-pointer ${
+                  isPlaying
+                    ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                    : 'bg-brand-600 hover:bg-brand-700 text-white'
+                }"
+              >
+                ${isPlaying ? 'إيقاف' : 'تشغيل'}
+              </button>
+            </div>
+
+            <div class="flex items-center gap-2.5 pt-1">
+              <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">الصوت:</span>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value="${volPct}"
+                aria-label="مستوى صوت ${snd.name}"
+                oninput="updateSingleAmbientVolume('${snd.id}', this.value)"
+                class="flex-1 accent-brand-600 cursor-pointer h-1.5"
+              />
+              <span id="ambient-vol-label-${snd.id}" class="timer-digits text-[11px] font-bold text-slate-600 dark:text-slate-300 w-9 text-left">${volPct}%</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+      refreshIcons();
+    }
+
+    function createWhiteNoiseBuffer(ctx, seconds = 2) {
+      const length = ctx.sampleRate * seconds;
+      const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < length; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+      return buffer;
+    }
+
+    function createBrownNoiseBuffer(ctx, seconds = 3) {
+      const length = ctx.sampleRate * seconds;
+      const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      let lastOut = 0.0;
+      for (let i = 0; i < length; i++) {
+        const white = Math.random() * 2 - 1;
+        data[i] = (lastOut + 0.02 * white) / 1.02;
+        lastOut = data[i];
+        data[i] *= 3.0;
+      }
+      return buffer;
+    }
+
+    function toggleAmbientSound(id) {
+      if (activeAmbientNodes[id]) {
+        stopSingleAmbient(id);
+        renderAmbientSoundsUI();
+        return;
+      }
+
+      const ctx = getAudioContext();
+      if (!ctx) {
+        showToast('المتصفح لا يدعم توليد الصوت المباشر', 'warning');
+        return;
+      }
+
+      const vol = ambientSoundVolumes[id] ?? 0.45;
+      const masterGain = ctx.createGain();
+      masterGain.gain.value = vol * 0.28;
+      masterGain.connect(ctx.destination);
+
+      let stopFn = () => {
+        try { masterGain.disconnect(); } catch (e) {}
+      };
+
+      if (id === 'rain') {
+        const src = ctx.createBufferSource();
+        src.buffer = createWhiteNoiseBuffer(ctx, 3);
+        src.loop = true;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 1150;
+        filter.Q.value = 0.75;
+        src.connect(filter);
+        filter.connect(masterGain);
+        src.start();
+        stopFn = () => {
+          try { src.stop(); src.disconnect(); masterGain.disconnect(); } catch (e) {}
+        };
+      } else if (id === 'waves') {
+        const src = ctx.createBufferSource();
+        src.buffer = createWhiteNoiseBuffer(ctx, 4);
+        src.loop = true;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 420;
+        const lfo = ctx.createOscillator();
+        const lfoGain = ctx.createGain();
+        lfo.frequency.value = 0.14;
+        lfoGain.gain.value = 240;
+        lfo.connect(lfoGain);
+        lfoGain.connect(filter.frequency);
+        src.connect(filter);
+        filter.connect(masterGain);
+        src.start();
+        lfo.start();
+        stopFn = () => {
+          try { src.stop(); lfo.stop(); src.disconnect(); lfo.disconnect(); masterGain.disconnect(); } catch (e) {}
+        };
+      } else if (id === 'fireplace') {
+        const src = ctx.createBufferSource();
+        src.buffer = createBrownNoiseBuffer(ctx, 3);
+        src.loop = true;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 280;
+        src.connect(filter);
+        filter.connect(masterGain);
+        src.start();
+        stopFn = () => {
+          try { src.stop(); src.disconnect(); masterGain.disconnect(); } catch (e) {}
+        };
+      } else {
+        const src = ctx.createBufferSource();
+        src.buffer = createBrownNoiseBuffer(ctx, 4);
+        src.loop = true;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 550;
+        src.connect(filter);
+        filter.connect(masterGain);
+        src.start();
+        stopFn = () => {
+          try { src.stop(); src.disconnect(); masterGain.disconnect(); } catch (e) {}
+        };
+      }
+
+      activeAmbientNodes[id] = { stopFn, gainNode: masterGain };
+      renderAmbientSoundsUI();
+    }
+
+    function stopSingleAmbient(id) {
+      if (activeAmbientNodes[id]) {
+        activeAmbientNodes[id].stopFn();
+        delete activeAmbientNodes[id];
+      }
+    }
+
+    function stopAllAmbientSounds() {
+      Object.keys(activeAmbientNodes).forEach(stopSingleAmbient);
+      renderAmbientSoundsUI();
+    }
+
+    function updateSingleAmbientVolume(id, val) {
+      const num = Math.max(0, Math.min(100, parseInt(val, 10) || 0));
+      ambientSoundVolumes[id] = num / 100;
+      const label = document.getElementById(`ambient-vol-label-${id}`);
+      if (label) label.textContent = `${num}%`;
+      if (activeAmbientNodes[id] && activeAmbientNodes[id].gainNode) {
+        activeAmbientNodes[id].gainNode.gain.value = ambientSoundVolumes[id] * 0.28;
+      }
+    }
+
+    // ==================== 8. ACHIEVEMENTS, UNITS & LESSONS MODAL ====================
+    let lessonsModalContext = { subjectId: null, unitId: null };
+    let editUnitContext = { subjectId: null, unitId: null };
+
+    function computeSubjectStats(prog) {
+      const units = Array.isArray(prog.units) ? prog.units : [];
+      let totalLessons = 0;
+      let doneLessons = 0;
+      units.forEach(u => {
+        const lessons = Array.isArray(u.lessons) ? u.lessons : [];
+        totalLessons += lessons.length;
+        doneLessons += lessons.filter(l => l.done).length;
+      });
+      const masteryPct = totalLessons > 0 ? Math.round((doneLessons / totalLessons) * 100) : 0;
+      const mins = Number(prog.minutes || 0);
+      const hoursStr = (mins / 60).toFixed(1).replace(/\.0$/, '');
+      return {
+        unitsCount: units.length,
+        totalLessons,
+        doneLessons,
+        masteryPct,
+        minutes: mins,
+        hoursStr,
+        sessions: Number(prog.sessions || 0)
+      };
+    }
+
+    function renderAchievements() {
+      const profile = CURRICULUM[appState.profileKey];
+      const grid = document.getElementById('achievements-subjects-grid');
+      const summaryBadges = document.getElementById('achievements-summary-badges');
+      if (!profile || !grid) return;
+
+      let totalMinutes = 0;
+      let totalDoneLessons = 0;
+      let totalAllLessons = 0;
+
+      profile.subjects.forEach(sub => {
+        const prog = ensureSubjectProgress(sub.id);
+        const stats = computeSubjectStats(prog);
+        totalMinutes += stats.minutes;
+        totalDoneLessons += stats.doneLessons;
+        totalAllLessons += stats.totalLessons;
+      });
+
+      if (summaryBadges) {
+        const totalHours = (totalMinutes / 60).toFixed(1).replace(/\.0$/, '');
+        summaryBadges.innerHTML = `
+          <span class="px-3 py-1.5 rounded-xl bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300 text-xs font-extrabold">
+            إجمالي الوقت: ${totalMinutes} د (${totalHours} س)
+          </span>
+          <span class="px-3 py-1.5 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold">
+            الدروس المكتملة: ${totalDoneLessons} / ${totalAllLessons}
+          </span>
+        `;
+      }
+
+      grid.innerHTML = profile.subjects.map(sub => {
+        const prog = ensureSubjectProgress(sub.id);
+        const stats = computeSubjectStats(prog);
+        const badgeText = stats.masteryPct >= 80 ? 'متقن للمادة' : stats.minutes >= 120 ? 'مثابر' : 'قيد الإنجاز';
+
+        const unitsHtml = (prog.units || []).map((unit, idx) => {
+          const uLessons = Array.isArray(unit.lessons) ? unit.lessons : [];
+          const uDone = uLessons.filter(l => l.done).length;
+          const uPct = uLessons.length > 0 ? Math.round((uDone / uLessons.length) * 100) : 0;
+
+          return `
+            <div class="p-3 rounded-2xl bg-slate-100/85 dark:bg-slate-900/75 border border-slate-200/70 dark:border-slate-800 flex items-center justify-between gap-2 transition hover:border-brand-400">
+              <button
+                type="button"
+                onclick="openUnitLessonsModal('${sub.id}', '${unit.id}')"
+                class="flex items-center justify-between gap-2 text-right flex-1 min-w-0 cursor-pointer"
+              >
+                <div class="min-w-0">
+                  <div class="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white truncate">
+                    ${idx + 1}. ${escapeHtml(unit.title)}
+                  </div>
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400">
+                    ${uDone} / ${uLessons.length} دروس مكتملة • اضغط لعرض الدروس
+                  </div>
+                </div>
+                <span
+                  style="background-color: ${sub.color}1c; color: ${sub.color};"
+                  class="text-[11px] font-mono font-extrabold px-2.5 py-1 rounded-full flex-shrink-0"
+                >
+                  ${uPct}%
+                </span>
+              </button>
+
+              <div class="flex items-center gap-1 flex-shrink-0">
+                <button
+                  type="button"
+                  onclick="openEditUnitModal('${sub.id}', '${unit.id}')"
+                  title="تعديل اسم الوحدة وعدد دروسها"
+                  class="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-800 transition cursor-pointer"
+                >
+                  <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                </button>
+                <button
+                  type="button"
+                  onclick="deleteUnit('${sub.id}', '${unit.id}')"
+                  title="حذف الوحدة"
+                  class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
+                >
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        return `
+          <div class="glass-card rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div style="background-color: ${sub.color};" class="w-11 h-11 rounded-2xl text-white flex items-center justify-center shadow-xs">
+                  <i data-lucide="${sub.icon}" class="w-5 h-5"></i>
+                </div>
+                <div>
+                  <h3 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white">${sub.name}</h3>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">
+                    ${stats.minutes} د (${stats.hoursStr} س) • ${stats.sessions} جلسات • ${stats.unitsCount} وحدات • ${stats.doneLessons}/${stats.totalLessons} دروس
+                  </p>
+                </div>
+              </div>
+              <span
+                style="background-color: ${sub.color}1c; color: ${sub.color};"
+                class="px-3 py-1 rounded-full text-xs font-extrabold"
+              >
+                ${badgeText}
+              </span>
+            </div>
+
+            <!-- Mastery Progress Bar -->
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between text-xs font-bold">
+                <span class="text-slate-600 dark:text-slate-300">نسبة إتقان الدروس</span>
+                <span style="color: ${sub.color};" class="font-mono font-extrabold">${stats.masteryPct}%</span>
+              </div>
+              <div class="w-full h-2.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                <div
+                  style="width: ${stats.masteryPct}%; background-color: ${sub.color};"
+                  class="h-full rounded-full transition-all duration-300"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Add Unit Form -->
+            <form onsubmit="addUnitToSubject(event, '${sub.id}')" class="flex items-center gap-2">
+              <input
+                id="new-unit-input-${sub.id}"
+                type="text"
+                required
+                placeholder="إضافة وحدة جديدة (مثال: الوحدة الثانية)..."
+                class="flex-1 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
+              />
+              <button
+                type="submit"
+                class="px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-extrabold flex items-center gap-1 transition cursor-pointer"
+              >
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                <span>وحدة</span>
+              </button>
+            </form>
+
+            <!-- Units List -->
+            <div class="space-y-2.5">
+              ${unitsHtml || '<p class="text-xs text-slate-400 text-center py-3">أضف وحدة دراسية للبدء بتتبع دروسها.</p>'}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      refreshIcons();
+    }
+
+    function addUnitToSubject(event, subjectId) {
+      event.preventDefault();
+      const input = document.getElementById(`new-unit-input-${subjectId}`);
+      const title = input ? input.value.trim() : '';
+      if (!title) return;
+
+      const prog = ensureSubjectProgress(subjectId);
+      const newUnit = {
+        id: 'u_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        title,
+        lessons: [
+          {
+            id: 'l_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+            title: 'الدرس الأول',
+            done: false
+          }
+        ]
+      };
+      prog.units.push(newUnit);
+      input.value = '';
+      saveState();
+      renderAchievements();
+      showToast('تمت إضافة الوحدة الدراسية', 'success');
+    }
+
+    function openEditUnitModal(subjectId, unitId) {
+      const prog = ensureSubjectProgress(subjectId);
+      const unit = prog.units.find(u => u.id === unitId);
+      if (!unit) return;
+
+      editUnitContext = { subjectId, unitId };
+      const titleInput = document.getElementById('edit-unit-title-input');
+      const countInput = document.getElementById('edit-unit-lesson-count-input');
+      if (titleInput) titleInput.value = unit.title || '';
+      if (countInput) countInput.value = String(Math.max(1, (unit.lessons || []).length));
+
+      const modal = document.getElementById('edit-unit-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      refreshIcons();
+    }
+
+    function closeEditUnitModal() {
+      editUnitContext = { subjectId: null, unitId: null };
+      const modal = document.getElementById('edit-unit-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function handleSaveUnitEdits(event) {
+      event.preventDefault();
+      const { subjectId, unitId } = editUnitContext;
+      if (!subjectId || !unitId) return;
+
+      const prog = ensureSubjectProgress(subjectId);
+      const unit = prog.units.find(u => u.id === unitId);
+      if (!unit) return;
+
+      const titleInput = document.getElementById('edit-unit-title-input');
+      const countInput = document.getElementById('edit-unit-lesson-count-input');
+      const newTitle = (titleInput?.value || '').trim();
+      const desiredCount = Math.max(1, Math.min(30, parseInt(countInput?.value || '1', 10) || 1));
+
+      if (!newTitle) return;
+      unit.title = newTitle;
+
+      const currentLessons = Array.isArray(unit.lessons) ? [...unit.lessons] : [];
+      if (currentLessons.length < desiredCount) {
+        for (let i = currentLessons.length; i < desiredCount; i++) {
+          currentLessons.push({
+            id: 'l_' + Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2, 5),
+            title: `الدرس ${i + 1}`,
+            done: false
+          });
+        }
+      } else if (currentLessons.length > desiredCount) {
+        currentLessons.length = desiredCount;
+      }
+      unit.lessons = currentLessons;
+
+      saveState();
+      renderAchievements();
+      closeEditUnitModal();
+      showToast('تم تحديث بيانات الوحدة وعدد دروسها', 'success');
+    }
+
+    function deleteUnit(subjectId, unitId) {
+      const prog = ensureSubjectProgress(subjectId);
+      prog.units = prog.units.filter(u => u.id !== unitId);
+      if (lessonsModalContext.subjectId === subjectId && lessonsModalContext.unitId === unitId) {
+        closeUnitLessonsModal();
+      }
+      saveState();
+      renderAchievements();
+      showToast('تم حذف الوحدة', 'info');
+    }
+
+    function openUnitLessonsModal(subjectId, unitId) {
+      lessonsModalContext = { subjectId, unitId };
+      const subMeta = getSubjectMeta(subjectId);
+      const prog = ensureSubjectProgress(subjectId);
+      const unit = prog.units.find(u => u.id === unitId);
+      if (!unit) return;
+
+      if (!Array.isArray(unit.lessons)) unit.lessons = [];
+      const doneCount = unit.lessons.filter(l => l.done).length;
+
+      const subTag = document.getElementById('lessons-modal-subject-tag');
+      if (subTag) {
+        subTag.textContent = subMeta.name;
+        subTag.style.backgroundColor = `${subMeta.color}1e`;
+        subTag.style.color = subMeta.color;
+      }
+
+      const unitTitleEl = document.getElementById('lessons-modal-unit-title');
+      if (unitTitleEl) unitTitleEl.textContent = `دروس ${unit.title}`;
+
+      const summaryEl = document.getElementById('lessons-modal-progress-summary');
+      if (summaryEl) summaryEl.textContent = `${doneCount} من ${unit.lessons.length} دروس مكتملة`;
+
+      const listEl = document.getElementById('lessons-modal-list');
+      if (listEl) {
+        if (!unit.lessons.length) {
+          listEl.innerHTML = '<p class="text-xs text-slate-400 text-center py-8">لا توجد دروس بعد. أضف درساً من النموذج بالأعلى.</p>';
+        } else {
+          listEl.innerHTML = unit.lessons.map((lesson, idx) => `
+            <div class="p-3 rounded-2xl bg-slate-100/85 dark:bg-slate-900/75 border border-slate-200/70 dark:border-slate-800 flex items-center justify-between gap-2">
+              <label class="flex items-center gap-2.5 flex-1 min-w-0 cursor-pointer">
+                <input
+                  type="checkbox"
+                  ${lesson.done ? 'checked' : ''}
+                  onchange="toggleLessonInModal('${lesson.id}')"
+                  class="w-4 h-4 accent-brand-600 rounded cursor-pointer"
+                />
+                <span class="text-xs sm:text-sm font-bold truncate ${lesson.done ? 'line-through text-slate-400' : 'text-slate-900 dark:text-white'}">
+                  ${idx + 1}. ${escapeHtml(lesson.title)}
+                </span>
+              </label>
+              <button
+                type="button"
+                onclick="deleteLessonInModal('${lesson.id}')"
+                title="حذف الدرس"
+                class="p-1.5 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
+              >
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          `).join('');
+        }
+      }
+
+      const modal = document.getElementById('unit-lessons-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      refreshIcons();
+    }
+
+    function closeUnitLessonsModal() {
+      lessonsModalContext = { subjectId: null, unitId: null };
+      const modal = document.getElementById('unit-lessons-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function handleAddLessonInModal(event) {
+      event.preventDefault();
+      const { subjectId, unitId } = lessonsModalContext;
+      if (!subjectId || !unitId) return;
+
+      const input = document.getElementById('modal-new-lesson-input');
+      const title = (input?.value || '').trim();
+      if (!title) return;
+
+      const prog = ensureSubjectProgress(subjectId);
+      const unit = prog.units.find(u => u.id === unitId);
+      if (!unit) return;
+      if (!Array.isArray(unit.lessons)) unit.lessons = [];
+
+      unit.lessons.push({
+        id: 'l_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        title,
+        done: false
+      });
+
+      input.value = '';
+      saveState();
+      renderAchievements();
+      openUnitLessonsModal(subjectId, unitId);
+      showToast('تمت إضافة الدرس بنجاح', 'success');
+    }
+
+    function toggleLessonInModal(lessonId) {
+      const { subjectId, unitId } = lessonsModalContext;
+      if (!subjectId || !unitId) return;
+
+      const prog = ensureSubjectProgress(subjectId);
+      const unit = prog.units.find(u => u.id === unitId);
+      const lesson = unit?.lessons?.find(l => l.id === lessonId);
+      if (!lesson) return;
+
+      lesson.done = !lesson.done;
+      saveState();
+      renderAchievements();
+      openUnitLessonsModal(subjectId, unitId);
+    }
+
+    function deleteLessonInModal(lessonId) {
+      const { subjectId, unitId } = lessonsModalContext;
+      if (!subjectId || !unitId) return;
+
+      const prog = ensureSubjectProgress(subjectId);
+      const unit = prog.units.find(u => u.id === unitId);
+      if (!unit) return;
+
+      unit.lessons = (unit.lessons || []).filter(l => l.id !== lessonId);
+      saveState();
+      renderAchievements();
+      openUnitLessonsModal(subjectId, unitId);
+      showToast('تم حذف الدرس', 'info');
+    }
+
+    // ==================== 9. STUDY WITH FRIENDS VIA SESSION CODE ONLY ====================
+    let buddyTimerInterval = null;
+    let buddySetupMode = 'create'; // 'create' | 'join'
+
+    function setBuddySetupMode(mode) {
+      buddySetupMode = mode === 'join' ? 'join' : 'create';
+      const createBtn = document.getElementById('btn-buddy-mode-create');
+      const joinBtn = document.getElementById('btn-buddy-mode-join');
+      const createForm = document.getElementById('buddy-create-form');
+      const joinForm = document.getElementById('buddy-join-form');
+
+      if (createBtn) {
+        createBtn.className = buddySetupMode === 'create'
+          ? 'px-4 py-2 rounded-xl text-xs font-extrabold bg-brand-600 text-white shadow-xs transition cursor-pointer'
+          : 'px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition cursor-pointer';
+      }
+      if (joinBtn) {
+        joinBtn.className = buddySetupMode === 'join'
+          ? 'px-4 py-2 rounded-xl text-xs font-extrabold bg-brand-600 text-white shadow-xs transition cursor-pointer'
+          : 'px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition cursor-pointer';
+      }
+      if (createForm) {
+        createForm.classList.toggle('hidden', buddySetupMode !== 'create');
+        createForm.classList.toggle('grid', buddySetupMode === 'create');
+      }
+      if (joinForm) {
+        joinForm.classList.toggle('hidden', buddySetupMode !== 'join');
+        joinForm.classList.toggle('flex', buddySetupMode === 'join');
+      }
+      refreshIcons();
+    }
+
+    function quickSetBuddyDuration(mins) {
+      const input = document.getElementById('buddy-duration-input');
+      if (input) input.value = String(mins);
+    }
+
+    function generateBuddyRoomCode() {
+      const num = Math.floor(1000 + Math.random() * 9000);
+      return `SWM-${num}`;
+    }
+
+    function createBuddyRoom(event) {
+      event.preventDefault();
+      const profile = CURRICULUM[appState.profileKey];
+      const subSelect = document.getElementById('buddy-subject-select');
+      const durInput = document.getElementById('buddy-duration-input');
+      const friendInput = document.getElementById('buddy-friend-name-input');
+
+      const subjectId = subSelect ? subSelect.value : (profile?.subjects[0]?.id || 'general');
+      const durationMin = Math.max(1, Math.min(180, parseInt(durInput?.value || '25', 10) || 25));
+      const breakMin = Math.max(1, Math.min(60, Math.round((timerEngine.breakDurationSec || 300) / 60) || 5));
+      const friendName = (friendInput?.value || '').trim() || 'الصديق المنضم';
+
+      stopBuddyTimerLoop();
+      buddyPreviewRoleOverride = null;
+
+      appState.buddyRoom = normalizeBuddyRoom({
+        code: generateBuddyRoomCode(),
+        subjectId,
+        durationMin,
+        breakMin,
+        phase: 'study',
+        remainingSec: durationMin * 60,
+        targetEndTime: null,
+        running: false,
+        creatorClientId: getClientInstanceId(),
+        creatorEmail: appState.user?.email || '',
+        hostName: appState.user?.name || 'منشئ الغرفة',
+        partnerName: friendName,
+        partnerJoined: false,
+        completedSessions: 0,
+        lastCreditedSessionNum: 0,
+        updatedAt: Date.now()
+      });
+
+      broadcastBuddyRoom('create');
+      renderBuddyRoom();
+      showToast(`تم إنشاء الغرفة بالكود ${appState.buddyRoom.code} — شاركه مع صديقك وابدأ الجلسة`, 'success');
+    }
+
+    function joinBuddyRoomByCode(event) {
+      event.preventDefault();
+      const codeInput = document.getElementById('buddy-join-code-input');
+      const rawCode = (codeInput?.value || '').trim().toUpperCase();
+      if (!rawCode) return;
+      const enteredCode = rawCode.startsWith('SWM-') ? rawCode : `SWM-${rawCode}`;
+
+      const profile = CURRICULUM[appState.profileKey];
+      const defaultSubjectId = appState.buddyRoom?.subjectId || appState.activeSubjectId || profile?.subjects[0]?.id || 'general';
+      const durMin = appState.buddyRoom?.durationMin || 25;
+      const breakMin = appState.buddyRoom?.breakMin || 5;
+
+      let sharedSnapshot = null;
+      try {
+        const storedRaw = localStorage.getItem(BUDDY_STORAGE_KEY);
+        if (storedRaw) {
+          const parsed = JSON.parse(storedRaw);
+          if (parsed?.room && String(parsed.room.code || '').toUpperCase() === enteredCode) {
+            sharedSnapshot = normalizeBuddyRoom(parsed.room);
+          }
+        }
+      } catch (err) {}
+
+      stopBuddyTimerLoop();
+      buddyPreviewRoleOverride = null;
+
+      if (sharedSnapshot) {
+        sharedSnapshot.partnerJoined = true;
+        if (appState.user?.name && appState.user.name !== sharedSnapshot.hostName) {
+          sharedSnapshot.partnerName = appState.user.name;
+        }
+        sharedSnapshot.remainingSec = computeBuddyRemainingSeconds(sharedSnapshot);
+        appState.buddyRoom = sharedSnapshot;
+      } else if (!appState.buddyRoom || appState.buddyRoom.code !== enteredCode) {
+        appState.buddyRoom = normalizeBuddyRoom({
+          code: enteredCode,
+          subjectId: defaultSubjectId,
+          durationMin: durMin,
+          breakMin,
+          phase: 'study',
+          remainingSec: durMin * 60,
+          targetEndTime: null,
+          running: false,
+          creatorClientId: 'remote_host_' + enteredCode,
+          creatorEmail: 'host@studywithme.local',
+          hostName: 'منشئ الغرفة',
+          partnerName: appState.user?.name || 'الصديق المنضم',
+          partnerJoined: true,
+          completedSessions: 0,
+          lastCreditedSessionNum: 0,
+          updatedAt: Date.now()
+        });
+      } else {
+        appState.buddyRoom.partnerJoined = true;
+        if (appState.user?.name && appState.buddyRoom.partnerName === 'الصديق المنضم') {
+          appState.buddyRoom.partnerName = appState.user.name;
+        }
+      }
+
+      if (codeInput) codeInput.value = '';
+      broadcastBuddyRoom('join');
+
+      if (appState.buddyRoom.running) {
+        startBuddyIntervalWatcher();
+      }
+
+      renderBuddyRoom();
+      showToast(`تم الانضمام للغرفة ${enteredCode} — ستبدأ الجلسة تلقائياً فور بدئها من المنشئ`, 'success');
+    }
+
+    function simulatePartnerJoin() {
+      if (!appState.buddyRoom) return;
+      appState.buddyRoom.partnerJoined = true;
+      broadcastBuddyRoom('partner_joined');
+      renderBuddyRoom();
+      showToast(`انضم ${appState.buddyRoom.partnerName} إلى الغرفة`, 'success');
+    }
+
+    function resetBuddyTimer() {
+      const room = appState.buddyRoom;
+      if (!room) return;
+      if (!isRoomCreator(room)) {
+        showToast('إعادة ضبط المؤقت متاحة لمنشئ الغرفة فقط', 'warning');
+        return;
+      }
+      stopBuddyTimerLoop();
+      room.running = false;
+      room.targetEndTime = null;
+      room.remainingSec = (room.phase === 'break' ? room.breakMin : room.durationMin) * 60;
+      broadcastBuddyRoom('reset');
+      renderBuddyRoom();
+    }
+
+    function copyBuddyRoomCode() {
+      if (!appState.buddyRoom?.code) return;
+      const code = appState.buddyRoom.code;
+      try {
+        const temp = document.createElement('input');
+        temp.value = code;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+        showToast(`تم نسخ الكود: ${code}`, 'success');
+      } catch (e) {
+        showToast(`كود الجلسة: ${code}`, 'info');
+      }
+    }
+
+    function startBuddyIntervalWatcher() {
+      if (buddyTimerInterval) {
+        clearInterval(buddyTimerInterval);
+        buddyTimerInterval = null;
+      }
+
+      buddyTimerInterval = setInterval(() => {
+        const room = appState.buddyRoom;
+        if (!room || !room.running) {
+          stopBuddyTimerLoop();
+          return;
+        }
+
+        const left = computeBuddyRemainingSeconds(room);
+        room.remainingSec = left;
+
+        const digitsEl = document.getElementById('buddy-timer-digits');
+        if (digitsEl) {
+          const m = Math.floor(left / 60);
+          const s = left % 60;
+          digitsEl.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        const barEl = document.getElementById('buddy-progress-bar');
+        const totalSec = Math.max(1, (room.phase === 'break' ? room.breakMin : room.durationMin) * 60);
+        if (barEl) {
+          const pct = Math.max(0, Math.min(100, Math.round(((totalSec - left) / totalSec) * 100)));
+          barEl.style.width = `${pct}%`;
+        }
+
+        if (left <= 0) {
+          completeBuddySession();
+        }
+      }, 250);
+    }
+
+    function toggleBuddyTimer() {
+      const room = appState.buddyRoom;
+      if (!room) return;
+
+      if (!isRoomCreator(room)) {
+        showToast('فقط منشئ الغرفة هو من يبدأ الجلسة، وستبدأ عندك تلقائياً فور بدئها', 'warning');
+        return;
+      }
+
+      getAudioContext();
+
+      if (room.running) {
+        room.remainingSec = computeBuddyRemainingSeconds(room);
+        room.running = false;
+        room.targetEndTime = null;
+        stopBuddyTimerLoop();
+        broadcastBuddyRoom('pause');
+        renderBuddyRoom();
+      } else {
+        const activeDurSec = (room.phase === 'break' ? room.breakMin : room.durationMin) * 60;
+        if (room.remainingSec <= 0) {
+          room.remainingSec = activeDurSec;
+        }
+        room.running = true;
+        room.targetEndTime = Date.now() + room.remainingSec * 1000;
+        playSessionStartCue();
+        broadcastBuddyRoom('start');
+        startBuddyIntervalWatcher();
+        renderBuddyRoom();
+        showToast('بدأت الجلسة المشتركة ومزامنتها فوراً مع صديقك', 'success');
+      }
+    }
+
+    function stopBuddyTimerLoop() {
+      if (buddyTimerInterval) {
+        clearInterval(buddyTimerInterval);
+        buddyTimerInterval = null;
+      }
+    }
+
+    function completeBuddySession() {
+      const room = appState.buddyRoom;
+      if (!room) return;
+
+      const wasBreak = room.phase === 'break';
+      const earnedMin = Math.max(1, Number(room.durationMin || 25));
+
+      stopBuddyTimerLoop();
+      room.running = false;
+      room.targetEndTime = null;
+
+      if (!wasBreak) {
+        const nextSessionNum = Number(room.completedSessions || 0) + 1;
+        room.completedSessions = nextSessionNum;
+        room.lastCreditedSessionNum = nextSessionNum;
+        room.phase = 'study';
+        room.remainingSec = earnedMin * 60;
+
+        const prog = ensureSubjectProgress(room.subjectId);
+        prog.minutes = Number(prog.minutes || 0) + earnedMin;
+        prog.sessions = Number(prog.sessions || 0) + 1;
+
+        broadcastBuddyRoom('session_completed');
+        saveState();
+        updateTotalMinutesBadge();
+        renderAchievements();
+        renderBuddyRoom();
+
+        const subMeta = getSubjectMeta(room.subjectId);
+        playSessionEndChimeAndVoice('انتهت الجلسة الدراسية وحان وقت الراحة');
+        showToast(
+          `تم احتساب ${earnedMin} دقيقة في (${subMeta.name}) لك ولكل من ${room.partnerName}`,
+          'success'
+        );
+      } else {
+        room.phase = 'study';
+        room.remainingSec = earnedMin * 60;
+        broadcastBuddyRoom('break_finished');
+        saveState();
+        renderBuddyRoom();
+        playSessionEndChimeAndVoice('انتهت فترة الاستراحة، يمكنك البدء بجلسة دراسة جديدة');
+        showToast('انتهت الاستراحة، يمكنك بدء جلسة جديدة', 'info');
+      }
+    }
+
+    function leaveBuddyRoom() {
+      stopBuddyTimerLoop();
+      stopBuddyMicrophone();
+      appState.buddyRoom = null;
+      buddyPreviewRoleOverride = null;
+      broadcastBuddyRoom('leave');
+      saveState();
+      renderBuddyRoom();
+      showToast('تمت مغادرة الغرفة', 'info');
+    }
+
+    function renderBuddyRoom() {
+      const profile = CURRICULUM[appState.profileKey];
+      const subSelect = document.getElementById('buddy-subject-select');
+      if (profile && subSelect) {
+        subSelect.innerHTML = profile.subjects
+          .map(s => `<option value="${s.id}" ${s.id === appState.activeSubjectId ? 'selected' : ''}>${s.name}</option>`)
+          .join('');
+      }
+
+      setBuddySetupMode(buddySetupMode);
+
+      const stage = document.getElementById('buddy-room-stage');
+      if (!stage) return;
+
+      const room = appState.buddyRoom;
+      if (!room) {
+        stage.innerHTML = `
+          <div class="py-10 px-4 text-center space-y-2.5">
+            <div class="w-12 h-12 rounded-2xl bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400 mx-auto flex items-center justify-center">
+              <i data-lucide="sparkles" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-base font-extrabold text-slate-900 dark:text-white">لا توجد غرفة نشطة حالياً</h3>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+              أنشئ غرفة لتحصل على كود وتبدأ الجلسة بنفسك، أو اختر «الانضمام بكود» للدخول إلى غرفة صديقك.
+            </p>
+          </div>
+        `;
+        refreshIcons();
+        return;
+      }
+
+      const creator = isRoomCreator(room);
+      const subMeta = getSubjectMeta(room.subjectId);
+      const secLeft = computeBuddyRemainingSeconds(room);
+      const totalSec = Math.max(1, (room.phase === 'break' ? room.breakMin : room.durationMin) * 60);
+      const progressPct = Math.max(0, Math.min(100, Math.round(((totalSec - secLeft) / totalSec) * 100)));
+      const mins = Math.floor(secLeft / 60);
+      const secs = secLeft % 60;
+      const timeStr = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      const totalCreditedMins = Number(room.completedSessions || 0) * Number(room.durationMin || 25);
+
+      stage.innerHTML = `
+        <!-- Top Row: Code + Copy, Subject Pill, Role Badge -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-200/80 dark:border-slate-800">
+          <div class="flex flex-wrap items-center gap-2.5">
+            <span class="px-3.5 py-1.5 rounded-2xl bg-brand-50 dark:bg-brand-950/50 border border-brand-200/80 dark:border-brand-800/60 text-brand-700 dark:text-brand-300 font-mono font-extrabold text-sm">
+              ${escapeHtml(room.code)}
+            </span>
+            <button
+              type="button"
+              onclick="copyBuddyRoomCode()"
+              class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-extrabold flex items-center gap-1.5 transition cursor-pointer"
+            >
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span>نسخ الكود</span>
+            </button>
+            <span class="px-3 py-1 rounded-full text-xs font-extrabold ${
+              creator
+                ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
+                : 'bg-brand-100 text-brand-800 dark:bg-brand-950/60 dark:text-brand-300'
+            }">
+              ${creator ? 'منشئ الغرفة' : 'الصديق المنضم'}
+            </span>
+          </div>
+
+          <span
+            style="background-color: ${subMeta.color}1e; color: ${subMeta.color};"
+            class="px-3.5 py-1.5 rounded-full text-xs font-extrabold flex items-center gap-1.5"
+          >
+            <i data-lucide="${subMeta.icon}" class="w-4 h-4"></i>
+            <span>${subMeta.name} • ${room.durationMin} د</span>
+          </span>
+        </div>
+
+        <!-- Centered Shared Timer -->
+        <div class="py-4 px-5 rounded-3xl bg-slate-100/80 dark:bg-slate-900/75 text-center space-y-3">
+          <div class="text-xs font-bold text-slate-500 dark:text-slate-400">
+            ${
+              room.running
+                ? 'الجلسة جارية ومتزامنة مباشرة بين الطرفين'
+                : creator
+                  ? 'جاهز للبدء — اضغط «بدء الجلسة» لتبدأ فوراً عندك وعند صديقك'
+                  : 'بانتظار منشئ الغرفة لبدء الجلسة — ستبدأ تلقائياً عندك فور بدئها'
+            }
+          </div>
+          <div id="buddy-timer-digits" class="timer-digits text-5xl sm:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            ${timeStr}
+          </div>
+          <div class="max-w-sm mx-auto w-full h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+            <div
+              id="buddy-progress-bar"
+              style="width: ${progressPct}%; background-color: ${subMeta.color};"
+              class="h-full rounded-full transition-all duration-300"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Two-Partner Progress Strip -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div class="p-4 rounded-2xl bg-slate-50/90 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div style="background-color: ${subMeta.color};" class="w-10 h-10 rounded-xl text-white font-extrabold flex items-center justify-center flex-shrink-0">
+                ${escapeHtml((room.hostName || 'م').trim().charAt(0))}
+              </div>
+              <div class="min-w-0">
+                <div class="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(room.hostName)}</div>
+                <div class="text-[11px] text-slate-500 dark:text-slate-400">
+                  المنشئ • ${totalCreditedMins} د مكتسبة (${room.completedSessions || 0} جلسات)
+                </div>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-[11px] font-extrabold flex-shrink-0 ${
+              room.running
+                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
+                : 'bg-slate-200/80 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+            }">
+              ${room.running ? 'يدرس الآن' : 'مستعد'}
+            </span>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-slate-50/90 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-extrabold flex items-center justify-center flex-shrink-0">
+                ${escapeHtml((room.partnerName || 'ص').trim().charAt(0))}
+              </div>
+              <div class="min-w-0">
+                <div class="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(room.partnerName)}</div>
+                <div class="text-[11px] text-slate-500 dark:text-slate-400">
+                  ${room.partnerJoined ? `منضم • ${totalCreditedMins} د مكتسبة (${room.completedSessions || 0} جلسات)` : 'بانتظار الدخول بالكود'}
+                </div>
+              </div>
+            </div>
+            ${
+              room.partnerJoined
+                ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-extrabold flex-shrink-0 ${
+                    room.running
+                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
+                      : 'bg-brand-100 text-brand-700 dark:bg-brand-950/60 dark:text-brand-300'
+                  }">${room.running ? 'يدرس الآن' : 'متصل'}</span>`
+                : `<button
+                    type="button"
+                    onclick="simulatePartnerJoin()"
+                    class="px-2.5 py-1 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-brand-600 hover:text-white text-[11px] font-bold transition cursor-pointer flex-shrink-0"
+                  >
+                    تأكيد الدخول
+                  </button>`
+            }
+          </div>
+        </div>
+
+        <!-- Primary Action Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+          <div class="flex flex-wrap items-center gap-2.5">
+            ${
+              creator
+                ? `
+                  <button
+                    type="button"
+                    onclick="toggleBuddyTimer()"
+                    class="px-6 py-3 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-xs sm:text-sm shadow-sm flex items-center gap-2 transition cursor-pointer"
+                  >
+                    <i data-lucide="${room.running ? 'pause' : 'play'}" class="w-4 h-4"></i>
+                    <span>${room.running ? 'إيقاف مؤقت' : 'بدء الجلسة'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onclick="resetBuddyTimer()"
+                    class="px-3.5 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+                  >
+                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                    <span>إعادة ضبط</span>
+                  </button>
+                `
+                : `
+                  <div class="px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800/90 text-slate-600 dark:text-slate-300 font-bold text-xs flex items-center gap-2">
+                    <i data-lucide="${room.running ? 'radio' : 'clock'}" class="w-4 h-4 text-brand-600"></i>
+                    <span>${room.running ? 'تعمل تلقائياً مع منشئ الغرفة' : 'بانتظار بدء الجلسة من منشئ الغرفة...'}</span>
+                  </div>
+                `
+            }
+
+            <button
+              type="button"
+              onclick="completeBuddySession()"
+              class="px-4 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm flex items-center gap-1.5 transition cursor-pointer"
+            >
+              <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+              <span>إنهاء واحتساب الإنجاز لكليكما</span>
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onclick="leaveBuddyRoom()"
+            class="px-4 py-2.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+          >
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            <span>مغادرة</span>
+          </button>
+        </div>
+      `;
+      refreshIcons();
+    }
+
+    // ==================== 10. DAILY & WEEKLY TASKS ====================
+    function setTaskFilter(filterName) {
+      appState.taskFilter = ['all', 'daily', 'weekly'].includes(filterName) ? filterName : 'all';
+      saveState();
+      renderTasks();
+    }
+
+    function renderTasks() {
+      const profile = CURRICULUM[appState.profileKey];
+      const subjectSelect = document.getElementById('new-task-subject');
+      if (profile && subjectSelect) {
+        subjectSelect.innerHTML = profile.subjects
+          .map(s => `<option value="${s.id}">${s.name}</option>`)
+          .join('');
+      }
+
+      const activeFilter = appState.taskFilter || 'all';
+      document.querySelectorAll('.task-filter-btn').forEach(btn => {
+        const isCurrent = btn.getAttribute('data-task-filter') === activeFilter;
+        btn.className = isCurrent
+          ? 'task-filter-btn px-3 py-1.5 rounded-xl text-xs font-extrabold bg-brand-600 text-white transition cursor-pointer'
+          : 'task-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 transition cursor-pointer';
+      });
+
+      const dailyCard = document.getElementById('daily-tasks-card');
+      const weeklyCard = document.getElementById('weekly-tasks-card');
+      const grid = document.getElementById('tasks-columns-grid');
+      if (dailyCard) dailyCard.classList.toggle('hidden', activeFilter === 'weekly');
+      if (weeklyCard) weeklyCard.classList.toggle('hidden', activeFilter === 'daily');
+      if (grid) {
+        grid.classList.toggle('lg:grid-cols-2', activeFilter === 'all');
+        grid.classList.toggle('lg:grid-cols-1', activeFilter !== 'all');
+      }
+
+      const dailyList = document.getElementById('daily-tasks-list');
+      const weeklyList = document.getElementById('weekly-tasks-list');
+      if (!dailyList || !weeklyList) return;
+
+      const dailyTasks = appState.tasks.filter(t => t.period === 'daily');
+      const weeklyTasks = appState.tasks.filter(t => t.period === 'weekly');
+
+      document.getElementById('daily-tasks-count').textContent = String(dailyTasks.length);
+      document.getElementById('weekly-tasks-count').textContent = String(weeklyTasks.length);
+
+      const buildTaskRow = task => {
+        const subObj = profile ? profile.subjects.find(s => s.id === task.subjectId) : null;
+        return `
+          <div class="p-3 rounded-2xl bg-slate-100/80 dark:bg-slate-900/70 flex items-center justify-between gap-3">
+            <label class="flex items-center gap-2.5 flex-1 min-w-0 cursor-pointer">
+              <input
+                type="checkbox"
+                ${task.done ? 'checked' : ''}
+                onchange="toggleTaskDone('${task.id}')"
+                class="w-4 h-4 accent-brand-600 rounded cursor-pointer"
+              />
+              <div class="min-w-0">
+                <p class="text-xs sm:text-sm font-bold truncate ${task.done ? 'line-through text-slate-400' : 'text-slate-900 dark:text-white'}">
+                  ${escapeHtml(task.title)}
+                </p>
+                ${
+                  subObj
+                    ? `<span style="background-color: ${subObj.color}1c; color: ${subObj.color};" class="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold">${subObj.name}</span>`
+                    : ''
+                }
+              </div>
+            </label>
+            <button
+              type="button"
+              onclick="deleteTaskItem('${task.id}')"
+              title="حذف المهمة"
+              class="p-1.5 rounded-xl text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-950/50 transition cursor-pointer"
+            >
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+        `;
+      };
+
+      dailyList.innerHTML = dailyTasks.length
+        ? dailyTasks.map(buildTaskRow).join('')
+        : '<p class="text-xs text-slate-400 text-center py-6">لا توجد مهام يومية بعد.</p>';
+
+      weeklyList.innerHTML = weeklyTasks.length
+        ? weeklyTasks.map(buildTaskRow).join('')
+        : '<p class="text-xs text-slate-400 text-center py-6">لا توجد مهام أسبوعية بعد.</p>';
+
+      refreshIcons();
+    }
+
+    function addTaskItem(event) {
+      event.preventDefault();
+      const titleInput = document.getElementById('new-task-title');
+      const periodSelect = document.getElementById('new-task-period');
+      const subjectSelect = document.getElementById('new-task-subject');
+
+      const title = titleInput.value.trim();
+      if (!title) return;
+
+      appState.tasks.unshift({
+        id: 't_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        title,
+        period: periodSelect.value === 'weekly' ? 'weekly' : 'daily',
+        subjectId: subjectSelect.value || '',
+        done: false
+      });
+
+      titleInput.value = '';
+      saveState();
+      renderTasks();
+      showToast('تمت إضافة المهمة', 'success');
+    }
+
+    function toggleTaskDone(taskId) {
+      const task = appState.tasks.find(t => t.id === taskId);
+      if (!task) return;
+      task.done = !task.done;
+      saveState();
+      renderTasks();
+    }
+
+    function deleteTaskItem(taskId) {
+      appState.tasks = appState.tasks.filter(t => t.id !== taskId);
+      saveState();
+      renderTasks();
+      showToast('تم حذف المهمة', 'info');
+    }
+
+    // ==================== 11. AI STUDY ASSISTANT ====================
+    function renderAiChat() {
+      const profile = CURRICULUM[appState.profileKey];
+      const select = document.getElementById('ai-subject-select');
+      if (profile && select) {
+        select.innerHTML = profile.subjects
+          .map(s => `<option value="${s.name}">${s.name}</option>`)
+          .join('');
+      }
+
+      if (!appState.chat.length) {
+        const gradeText = profile ? profile.label : 'المنهاج الأردني';
+        appState.chat.push({
+          role: 'assistant',
+          text: `أهلاً بك يا ${appState.user ? appState.user.name : 'بطل الدراسة'}! أنا مساعدك الذكي لـ (${gradeText}). اختر المادة واسألني عن شرح مفهوم، خطة مراجعة، أو أسئلة تدريبية.`
+        });
+      }
+
+      const box = document.getElementById('ai-chat-messages');
+      if (!box) return;
+
+      box.innerHTML = appState.chat.map(msg => {
+        const isUser = msg.role === 'user';
+        return `
+          <div class="flex ${isUser ? 'justify-start' : 'justify-end'}">
+            <div class="max-w-[85%] px-4 py-3 rounded-2xl text-xs sm:text-sm leading-relaxed whitespace-pre-line ${
+              isUser
+                ? 'bg-brand-600 text-white font-bold rounded-br-sm'
+                : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200/80 dark:border-slate-700 rounded-bl-sm'
+            }">
+              ${escapeHtml(msg.text)}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function useQuickPrompt(text) {
+      const input = document.getElementById('ai-prompt-input');
+      if (input) {
+        input.value = text;
+        input.focus();
+      }
+    }
+
+    function generateStudyReply(prompt, subjectName) {
+      const p = prompt.toLowerCase();
+      const gradeLabel = CURRICULUM[appState.profileKey]?.label || 'المنهاج الأردني';
+
+      if (p.includes('مفهوم') || p.includes('اشرح')) {
+        return `شرح مبسط لمفهوم في مادة (${subjectName}) ضمن (${gradeLabel}):\n• ابدأ بتعريف الفكرة الأساسية بكلمات واضحة ومباشرة.\n• اربطها بمثال واقعي أو قاعدة عملية يسهل تذكرها.\n• اختبر فهمك عبر حل سؤال تطبيقي قصير قبل الانتقال للدرس التالي.`;
+      }
+      if (p.includes('أسئلة') || p.includes('تدريبية') || p.includes('اختبار')) {
+        return `أسئلة تدريبية مقترحة لمادة (${subjectName}) (${gradeLabel}):\n1. ما الفكرة المحورية في الدرس الذي تراجعه الآن؟ وكيف ترتبط بالمفاهيم السابقة؟\n2. اذكر حالتين أو مثالين تطبيقيين على هذه القاعدة أو المعلومة.\n3. ما الخطأ الشائع الذي قد يقع فيه الطالب عند حل سؤال حول هذا الموضوع؟`;
+      }
+      if (p.includes('خطة') || p.includes('مراجعة')) {
+        return `خطة مراجعة مقترحة لمادة (${subjectName}) ضمن (${gradeLabel}):\n1. خصص جلسة 25-45 دقيقة لقراءة ملخص الدرس وتحديد النقاط الرئيسية.\n2. حلّ أسئلة تدريبية متنوعة وأسئلة سنوات سابقة دون النظر للحل فوراً.\n3. راجع الأخطاء وسجّلها في قائمة المهام اليومية لإعادتها خلال 24 ساعة.`;
+      }
+      if (p.includes('حفظ') || p.includes('فهم') || p.includes('دروس')) {
+        return `لإتقان دروس (${subjectName}) بثبات:\n• ابدأ بالفهم العام أولاً ثم اربط الأفكار بعناوين أو خرائط ذهنية مختصرة.\n• اشرح الفكرة بصوت مسموع أو لخّصها بكلماتك الخاصة.\n• حدّث حالة الدروس في قسم (الإنجازات) لتتبع نسبة إتمامك.`;
+      }
+      return `بخصوص سؤالك عن (${subjectName}) في (${gradeLabel}):\nأنصحك بتقسيم المطلوب إلى خطوات واضحة ومحددة، والبدء بالقاعدة أو الفكرة المحورية ثم تطبيقها على أمثلة تدريبية. اكتب لي اسم الدرس أو النقطة المحددة لنفصّلها خطوة بخطوة!`;
+    }
+
+    function handleAiSubmit(event) {
+      event.preventDefault();
+      const input = document.getElementById('ai-prompt-input');
+      const select = document.getElementById('ai-subject-select');
+      const prompt = input.value.trim();
+      if (!prompt) return;
+
+      const subjectName = select ? select.value : 'المادة الدراسية';
+      appState.chat.push({ role: 'user', text: prompt });
+      appState.chat.push({ role: 'assistant', text: generateStudyReply(prompt, subjectName) });
+      input.value = '';
+
+      saveState();
+      renderAiChat();
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // ==================== 12. INITIALIZATION ====================
+    window.addEventListener('keydown', (event) => {
+      if (event.code !== 'Space') return;
+      const activeTag = document.activeElement?.tagName?.toLowerCase();
+      if (activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select' || activeTag === 'button') {
+        return;
+      }
+      const dashVisible = !document.getElementById('view-dashboard')?.classList.contains('hidden');
+      if (dashVisible && appState.activeTab === 'timer') {
+        event.preventDefault();
+        toggleTimer();
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadSavedState();
+      const nameInput = document.getElementById('student-name-input');
+      const emailInput = document.getElementById('google-email-input');
+      if (nameInput) nameInput.value = '';
+      if (emailInput) emailInput.value = '';
+      initBuddySyncChannel();
+      if (appState.buddyRoom) {
+        appState.buddyRoom = normalizeBuddyRoom(appState.buddyRoom);
+        appState.buddyRoom.remainingSec = computeBuddyRemainingSeconds(appState.buddyRoom);
+        if (appState.buddyRoom.running) {
+          startBuddyIntervalWatcher();
+        }
+      }
+      applyThemeMode();
+      applyBrandColor(appState.color);
+      syncTimerModeBadgeUi();
+      updateTimerVisuals();
+      routeViews();
+      refreshIcons();
+    });
+  </script>
+</body>
+</html>
